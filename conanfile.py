@@ -17,5 +17,10 @@ class ArcheConan (ConanFile):
 
     generators = (
         'virtualenv',
+        'cmake_find_package',
         'CMakeToolchain',
     )
+
+    build_requires = [
+        'catch2/2.13.7',
+    ]

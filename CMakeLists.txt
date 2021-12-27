@@ -9,3 +9,12 @@ add_library(${PROJECT_NAME})
 
 add_subdirectory(include)
 add_subdirectory(src)
+
+
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(CTest)
+
+    if(BUILD_TESTING)
+        add_subdirectory(tests)
+    endif()
+endif()
