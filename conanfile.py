@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from conans import ConanFile
+from conans import ConanFile, tools
 
 
 class ArcheConan (ConanFile):
@@ -21,6 +21,10 @@ class ArcheConan (ConanFile):
         'CMakeToolchain',
     )
 
-    build_requires = [
-        'catch2/2.13.7',
-    ]
+    @property
+    def _run_tests (self):
+        return tools.get_env('CONAN_RUN_TESTS', default = False)
+
+    def build_requirements (self):
+        if self._run_tests:
+            self.test_requires('catch2/2.13.7')
