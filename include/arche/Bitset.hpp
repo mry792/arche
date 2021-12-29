@@ -38,6 +38,11 @@ class Bitset {
     using Underlying = T_Underlying;
 
     /*!
+        The number of bits of the underlying type used by this @c Bitset.
+     */
+    static constexpr auto bit_count = V_Bit_Count;
+
+    /*!
         @name Constructors
         @{
      */
