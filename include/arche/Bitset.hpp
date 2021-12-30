@@ -70,6 +70,12 @@ class Bitset {
     constexpr Bitset () noexcept = default;
 
     /*!
+        @c Bitset supports standard copy semantics.
+     */
+    constexpr Bitset (Bitset const&) noexcept = default;
+    constexpr Bitset& operator = (Bitset const&) noexcept = default;
+
+    /*!
         Construct a @c Bitset from the bits of @p value that are set. All other
         bits, including those outside the bounds of this @c Bitset, are
         initialized to zero.

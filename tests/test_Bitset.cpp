@@ -83,6 +83,48 @@ TEMPLATE_LIST_TEST_CASE(
 }
 
 TEMPLATE_LIST_TEST_CASE(
+    "arche::Bitset - copy constructor",
+    "[unit][Bitset][constructor]",
+    Bitset_Types
+) {
+    GIVEN("a non-default constructed Bitset") {
+        using Underlying = typename TestType::Underlying;
+
+        const TestType src{static_cast<Underlying>(0x4bu)};
+
+        WHEN("a new Bitset is copy-constructed") {
+            const TestType test_obj{src};
+
+            THEN("it has the value of the original object") {
+                REQUIRE(test_obj.value() == src.value());
+            }
+        }
+    }
+}
+
+TEMPLATE_LIST_TEST_CASE(
+    "arche::Bitset - copy assignment operator",
+    "[unit][Bitset]",
+    Bitset_Types
+) {
+    GIVEN("two non-default constructed Bitsets of different values") {
+        using Underlying = typename TestType::Underlying;
+
+        const TestType src{static_cast<Underlying>(0x4bu)};
+        TestType test_obj{static_cast<Underlying>(0x73u)};
+        REQUIRE(src.value() != test_obj.value());
+
+        WHEN("one Bitset is copy-assigned from the other") {
+            test_obj = src;
+
+            THEN("it has the value of the original object") {
+                REQUIRE(test_obj.value() == src.value());
+            }
+        }
+    }
+}
+
+TEMPLATE_LIST_TEST_CASE(
     "arche::Bitset - value constructor",
     "[unit][Bitset][constructor]",
     Bitset_Types
