@@ -81,3 +81,40 @@ TEMPLATE_LIST_TEST_CASE(
         }
     }
 }
+
+TEMPLATE_LIST_TEST_CASE(
+    "arche::Bitset - value constructor",
+    "[unit][Bitset][constructor]",
+    Bitset_Types
+) {
+    using Underlying = typename TestType::Underlying;
+
+    GIVEN("an instance of the underlying value") {
+        constexpr Underlying init = 0b0001'0110;
+
+        WHEN("constucting an object with the underlying value") {
+            constexpr TestType test_obj{init};
+
+            THEN("the object takes the value specified.") {
+                REQUIRE(test_obj.value() == init);
+            }
+        }
+    }
+
+    if constexpr (not TestType::is_saturated) {
+        GIVEN("an instance of the underlying value with extra bits set") {
+            constexpr auto bit_count = TestType::bit_count;
+            constexpr Underlying valid_value = 0b0110;
+            constexpr Underlying extra_bits = 1 << bit_count;
+            constexpr Underlying init = valid_value | extra_bits;
+
+            WHEN("constructing an object with the underlying value") {
+                constexpr TestType test_obj{init};
+
+                THEN("the object takes the value of the in-range bits") {
+                    REQUIRE(test_obj.value() == valid_value);
+                }
+            }
+        }
+    }
+}

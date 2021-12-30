@@ -70,6 +70,19 @@ class Bitset {
     constexpr Bitset () noexcept = default;
 
     /*!
+        Construct a @c Bitset from the bits of @p value that are set. All other
+        bits, including those outside the bounds of this @c Bitset, are
+        initialized to zero.
+     */
+    explicit constexpr Bitset (Underlying value)
+          : value_{static_cast<Underlying>(value & used_bits_mask())} {}
+
+    // Block implicit conversions to `Underlying` when used to construct a
+    // Bitset.
+    template <typename T>
+    Bitset (T _) = delete;
+
+    /*!
         @}
      */
 
