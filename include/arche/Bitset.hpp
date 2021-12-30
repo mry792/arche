@@ -89,6 +89,21 @@ class Bitset {
     Bitset (T _) = delete;
 
     /*!
+        Create a new @c Bitset with the specified bit set and all others unset.
+
+        @tparam bit_index The index of the bit to set.
+     */
+    template <unsigned bit_index>
+    static constexpr Bitset bit () {
+        static_assert(
+            bit_index < V_Bit_Count,
+            "Bit index must be within the specified size of the bitset."
+        );
+
+        return Bitset{static_cast<Underlying>(1 << bit_index)};
+    }
+
+    /*!
         @}
      */
 

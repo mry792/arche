@@ -160,3 +160,19 @@ TEMPLATE_LIST_TEST_CASE(
         }
     }
 }
+
+TEMPLATE_LIST_TEST_CASE(
+    "arche::Bitset - bit() static function (named constructor)",
+    "[unit][Bitset]",
+    Bitset_Types
+) {
+    GIVEN("a concrete Bitset type") {
+        WHEN("constructing a Bitset with bit function") {
+            constexpr TestType test_obj = TestType::template bit<3>();
+
+            THEN("the object has only that bit set") {
+                REQUIRE(test_obj.value() == (1 << 3));
+            }
+        }
+    }
+}
