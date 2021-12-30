@@ -43,6 +43,23 @@ class Bitset {
     static constexpr auto bit_count = V_Bit_Count;
 
     /*!
+        Indicates if every bit of the underlying type is used by this @c Bitset.
+     */
+    static constexpr bool is_saturated = bit_count == sizeof(Underlying) * 8;
+
+    /*!
+        Get a bitmask of the underlying type identifying the bits which are used
+        by this @c Bitset.
+     */
+    static constexpr Underlying used_bits_mask () {
+        if constexpr (is_saturated) {
+            return ~Underlying{};
+        } else {
+            return (Underlying{1} << V_Bit_Count) - 1;
+        }
+    }
+
+    /*!
         @name Constructors
         @{
      */

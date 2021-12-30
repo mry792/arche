@@ -48,6 +48,24 @@ TEST_CASE(
     #undef TEST_BITSET_STATICS
 }
 
+TEST_CASE(
+    "arche::Bitset - used_bits_mask() static function",
+    "[unit][Bitset]"
+) {
+    using arche::Bitset;
+
+    REQUIRE(Bitset<7u, std::uint8_t>::used_bits_mask() == 0x7f);
+    REQUIRE(Bitset<8u, std::uint8_t>::used_bits_mask() == 0xff);
+
+    REQUIRE(Bitset<7u, std::uint16_t>::used_bits_mask() == 0x00'7f);
+    REQUIRE(Bitset<16u, std::uint16_t>::used_bits_mask() == 0xff'ff);
+
+    REQUIRE(Bitset<7u, std::uint32_t>::used_bits_mask() == 0x00'00'00'7f);
+    REQUIRE(Bitset<16u, std::uint32_t>::used_bits_mask() == 0x00'00'ff'ff);
+    REQUIRE(Bitset<29u, std::uint32_t>::used_bits_mask() == 0x1f'ff'ff'ff);
+    REQUIRE(Bitset<32u, std::uint32_t>::used_bits_mask() == 0xff'ff'ff'ff);
+}
+
 TEMPLATE_LIST_TEST_CASE(
     "arche::Bitset - default constructor",
     "[unit][Bitset][constructor]",
