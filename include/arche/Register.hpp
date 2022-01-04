@@ -38,6 +38,21 @@ class Register {
     using Bitset = arche::Bitset<V_Bit_Count, T_Underlying>;
 
     /*!
+        Set the register to the specified @p value.
+        @param[in] value The new value for the register.
+     */
+    static void set (Bitset value) {
+        reg_() = value.value();
+    }
+
+    /*!
+        Read the value of the register.
+     */
+    static Bitset get () {
+        return Bitset{reg_()};
+    }
+
+    /*!
         Set the bits specified in @p mask.
         @param[in] mask The bits set in this bitset will be set in the register.
             Cleared bits in @p mask will be ignored.

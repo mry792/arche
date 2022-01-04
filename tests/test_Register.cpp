@@ -36,6 +36,28 @@ TEST_CASE(
 }
 
 TEST_CASE(
+    "arche::Register - set() static function",
+    "[unit][Register]"
+) {
+    using Bitset = Mock_Register::Bitset;
+
+    GIVEN("a Register with a non-zero initial value") {
+        constexpr std::uint16_t initial_value = 0b0000'1010'0011'1110;
+        mock_register_value = initial_value;
+
+        WHEN("one sets it to a different value") {
+            constexpr std::uint16_t new_value = 0b1101'0000'1111'0110;
+            Mock_Register::set(Bitset{new_value});
+
+            THEN("the register has the new value") {
+                CHECK(mock_register_value == new_value);
+                CHECK(Mock_Register::get().value() == new_value);
+            }
+        }
+    }
+}
+
+TEST_CASE(
     "arche::Register - set_bits() static function",
     "[unit][Register]"
 ) {
