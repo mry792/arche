@@ -36,6 +36,33 @@ class Register {
         A @c Bitset type corresponding to the register value type.
      */
     using Bitset = arche::Bitset<V_Bit_Count, T_Underlying>;
+
+    /*!
+        Set the bits specified in @p mask.
+        @param[in] mask The bits set in this bitset will be set in the register.
+            Cleared bits in @p mask will be ignored.
+     */
+    static void set_bits (Bitset mask) {
+        reg_() = reg_() | mask.value();
+    }
+
+    /*!
+        Clears the bits specified in @p mask.
+        @param[in] mask The bits set in this bitset will be cleared in the
+            register. Cleared bits in @p mask will be ignored.
+     */
+    static void clear_bits (Bitset mask) {
+        reg_() = reg_() & ~mask.value();
+    }
+
+  private:
+    /*!
+        Implementation helper to access the underlying register as a volatile
+        reference.
+     */
+    static Underlying volatile& reg_ () {
+        return *reinterpret_cast<Underlying volatile*>(V_Address);
+    }
 };
 }  // namespace arche
 
