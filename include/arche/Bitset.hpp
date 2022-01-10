@@ -22,7 +22,7 @@ namespace arche {
         V_Bit_Count number of bits.
  */
 template <
-    std::unsigned_integral auto V_Bit_Count,
+    unsigned int V_Bit_Count,
     std::unsigned_integral T_Underlying
 >
 class Bitset {

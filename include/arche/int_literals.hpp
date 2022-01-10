@@ -5,7 +5,7 @@
 
 namespace arche::int_literals {
 #define INT_LITERAL(TYPE, SUFFIX) \
-TYPE operator "" SUFFIX(unsigned long long int value) { \
+inline TYPE operator "" SUFFIX(unsigned long long int value) { \
     return static_cast<TYPE>(value); \
 }
 
