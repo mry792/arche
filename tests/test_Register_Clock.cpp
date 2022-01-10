@@ -33,3 +33,55 @@ TEST_CASE(
         }
     }
 }
+
+TEST_CASE(
+    "arche::Register_Clock - now() static function",
+    "[unit][Register_Clock]"
+) {
+    mock_register_value = 0u;
+
+    GIVEN("a default constructed Register_Clock") {
+        Register_Clock clock{};
+
+        THEN("clock.now() is zero") {
+            CHECK(clock.now() == 0u);
+        }
+
+        WHEN("the register is set to a value") {
+            mock_register_value = GENERATE(1u, 7u, 187u, 255u);
+
+            THEN("clock.now() equals the register value") {
+                CHECK(clock.now() == mock_register_value);
+            }
+        }
+    }
+}
+
+TEST_CASE(
+    "arche::Register_Clock - on_register_overflow() static function",
+    "[unit][Register_Clock]"
+) {
+    mock_register_value = 0b0011'0101u;
+
+    GIVEN("a default constructed Register_Clock") {
+        Register_Clock clock{};
+
+        WHEN("the register overflows once") {
+            clock.on_register_overflow();
+
+            THEN("the clock's value is one overflow plus the register value") {
+                CHECK(clock.now() == 0b0001'0000'0000'0011'0101u);
+            }
+        }
+
+        WHEN("the register overflows several times") {
+            clock.on_register_overflow();
+            clock.on_register_overflow();
+            clock.on_register_overflow();
+
+            THEN("the clock's value is that many overflows puls the regsiter value") {
+                CHECK(clock.now() == 0b0011'0000'0000'0011'0101u);
+            }
+        }
+    }
+}
