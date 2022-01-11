@@ -5,16 +5,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_library(${PROJECT_NAME})
-target_compile_options(${PROJECT_NAME}
-    PUBLIC
-        -Werror
-        -Wall
-        -Wextra
-)
+add_library(${PROJECT_NAME} INTERFACE)
 
 add_subdirectory(include)
-add_subdirectory(src)
 
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
