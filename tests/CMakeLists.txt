@@ -8,6 +8,12 @@ add_executable(unit_test
     main.cpp
     ${test_files}
 )
+target_compile_options(unit_test
+    PRIVATE
+        -Werror
+        -Wall
+        -Wextra
+)
 target_link_libraries(unit_test
     # 3rd-party
     Catch2::Catch2
