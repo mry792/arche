@@ -27,7 +27,6 @@ jobs:
         conan profile update settings.compiler.libcxx=libstdc++11 default
         conan profile update settings.build_type=RelWithDebInfo default
         conan profile update env.CONAN_RUN_TESTS=True default
-        conan remote add conan-center https://center.conan.io
 
     - name: Install Dependencies
       run: |
