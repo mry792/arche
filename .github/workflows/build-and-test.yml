@@ -19,8 +19,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
+    - name: Get GCC
+      uses: egor-tensin/setup-gcc@v1
+      with:
+        version: 11
 
-    - uses: turtlebrowser/get-conan@v1.0
+    - name: Get Conan
+      uses: turtlebrowser/get-conan@v1.0
+
     - name: Setup Conan Profile
       run: |
         conan profile new --detect default
