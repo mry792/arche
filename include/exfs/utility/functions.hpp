@@ -7,12 +7,6 @@
 #include <type_traits>
 
 namespace exfs {
-// TODO: swap()
-
-// TODO: swap() for built-in arrays
-
-// TODO: exchange()
-
 // TODO: forward()
 
 /*!
@@ -40,6 +34,27 @@ template <typename T>
 void as_const (T const&&) = delete;
 
 // TODO: declval()
+
+/*!
+    Exchanges the given values.
+
+    @param[in,out] a
+    @param[in,out] b
+ */
+template <typename T>
+requires std::move_constructible<T> and std::is_move_assignable_v<T>
+constexpr void swap (T& a, T& b) noexcept(
+    std::is_nothrow_move_constructible_v<T> and
+    std::is_nothrow_move_assignable_v<T>
+) {
+    T tmp = move(a);
+    a = move(b);
+    b = move(tmp);
+}
+
+// TODO: swap() for built-in arrays
+
+// TODO: exchange()
 }  // namespace exfs
 
 #endif  // EXFS_UTILITY_FUNCTIONS_HPP_

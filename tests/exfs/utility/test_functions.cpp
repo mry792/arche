@@ -9,7 +9,7 @@
 namespace {                                                                    \
 struct WRAPPER_NAME {                                                          \
     template <typename... Ts>                                                  \
-    constexpr auto&& operator () (Ts&&... ts) const                            \
+    constexpr decltype(auto) operator () (Ts&&... ts) const                    \
     noexcept(noexcept(WRAPPED_FUNC(std::forward<Ts>(ts)...))) {                \
         return WRAPPED_FUNC(std::forward<Ts>(ts)...);                          \
     }                                                                          \
@@ -24,8 +24,8 @@ MAKE_WRAPPER(std_move, std::move)
 MAKE_WRAPPER(exfs_move, exfs::move)
 
 TEMPLATE_TEST_CASE(
-    "exfs::move - same as std::move",
-    "[unit][parity][utility]",
+    "exfs::move",
+    "[unit][std-parity][utility]",
     std_move,
     exfs_move
 ) {
@@ -64,8 +64,8 @@ MAKE_WRAPPER(std_as_const, std::as_const)
 MAKE_WRAPPER(exfs_as_const, exfs::as_const)
 
 TEMPLATE_TEST_CASE(
-    "exfs::as_const - same as std::as_const",
-    "[unit][parity][utility]",
+    "exfs::as_const",
+    "[unit][std-parity][utility]",
     std_as_const,
     exfs_as_const
 ) {
@@ -104,6 +104,105 @@ TEMPLATE_TEST_CASE(
             CHECK(std::is_same_v<decltype(wrapper(i)), int const&>);
             CHECK(std::is_same_v<decltype(wrapper(d)), double const&>);
             CHECK(std::is_same_v<decltype(wrapper(s)), std::string const&>);
+        }
+    }
+}
+
+///
+/// exfs::swap()
+///
+
+MAKE_WRAPPER(std_swap, std::swap)
+MAKE_WRAPPER(exfs_swap, exfs::swap)
+
+namespace {
+template <bool noexcept_move_construct, bool noexcept_assign>
+struct Swap_Obj {
+    int v;
+
+    Swap_Obj (int v_) : v{v_} {}
+
+    Swap_Obj (Swap_Obj&& other) noexcept(noexcept_move_construct)
+          : v{std::move(other.v)} {};
+
+    Swap_Obj& operator = (Swap_Obj&& other) noexcept(noexcept_assign) {
+        v = exfs::move(other.v);
+        return *this;
+    }
+};
+}  // namespace
+
+TEMPLATE_TEST_CASE(
+    "exfs::swap",
+    "[unit][std-parity][utility]",
+    std_swap,
+    exfs_swap
+) {
+    TestType wrapper{};
+
+    GIVEN("a built-in type") {
+        double obj_a = 3.7;
+        double obj_b = -4.9;
+
+        THEN("X::swap is noexcept") {
+            CHECK(noexcept(wrapper(obj_a, obj_b)));
+        }
+
+        THEN("X::swap swaps the values") {
+            wrapper(obj_a, obj_b);
+            CHECK(obj_a == -4.9);
+            CHECK(obj_b == 3.7);
+        }
+    }
+
+    GIVEN("a nothrow move constructible/assignable class type") {
+        using Obj = Swap_Obj<true, true>;
+
+        Obj obj_a{-3};
+        Obj obj_b{11};
+
+        THEN("X::swap is noexcept") {
+            CHECK(noexcept(wrapper(obj_a, obj_b)));
+        }
+
+        THEN("X::swap swaps the values") {
+            wrapper(obj_a, obj_b);
+            CHECK(obj_a.v == 11);
+            CHECK(obj_b.v == -3);
+        }
+    }
+
+    GIVEN("a class type with a move constructor that could throw") {
+        using Obj = Swap_Obj<false, true>;
+
+        Obj obj_a{-3};
+        Obj obj_b{11};
+
+        THEN("X::swap is noexcept") {
+            CHECK(not noexcept(wrapper(obj_a, obj_b)));
+        }
+
+        THEN("X::swap swaps the values") {
+            wrapper(obj_a, obj_b);
+            CHECK(obj_a.v == 11);
+            CHECK(obj_b.v == -3);
+        }
+    }
+
+    GIVEN("a class type with a move assignment operator that could throw") {
+        using Obj = Swap_Obj<true, false>;
+
+        Obj obj_a{-3};
+        Obj obj_b{11};
+
+        THEN("X::swap is noexcept") {
+            CHECK(not noexcept(wrapper(obj_a, obj_b)));
+        }
+
+        THEN("X::swap swaps the values") {
+            wrapper(obj_a, obj_b);
+            CHECK(obj_a.v == 11);
+            CHECK(obj_b.v == -3);
         }
     }
 }
