@@ -19,7 +19,16 @@ namespace exfs {
 
 // TODO: move_if_noexcept()
 
-// TODO: as_const()
+/*!
+    Forms lvalue reference to const type of @p t.
+ */
+template <typename T>
+constexpr std::add_const_t<T>& as_const(T& t) noexcept {
+    return t;
+}
+
+template <typename T>
+void as_const (T const&&) = delete;
 
 // TODO: declval()
 }  // namespace exfs
