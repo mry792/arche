@@ -15,7 +15,16 @@ namespace exfs {
 
 // TODO: forward()
 
-// TODO: move()
+/*!
+    Used to *indicate* that an object may be "moved from," i.e. allowing the
+    efficient transfer of resources from @p t to another object.
+
+    @param[in] t The object to be moved.
+ */
+template <typename T>
+constexpr std::remove_reference_t<T>&& move (T&& t) noexcept {
+    return static_cast<std::remove_reference_t<T>&&>(t);
+}
 
 // TODO: move_if_noexcept()
 
