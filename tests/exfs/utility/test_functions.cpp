@@ -57,6 +57,74 @@ TEMPLATE_TEST_CASE(
 }
 
 ///
+/// exfs::forward()
+///
+
+namespace {
+int get_prvalue () { return 0; }
+}
+
+TEST_CASE(
+    "exfs::forward",
+    "[unit][std-parity][utility]"
+) {
+    #define CHECK_EXPR_TYPE(EXPR, TYPE) \
+    CHECK(std::is_same_v<decltype(EXPR), TYPE>)
+
+    GIVEN("an input type of an lvalue") {
+        int const i = -6.5;
+        std::string sc = "qwerty";
+
+        THEN("the type is forwarded appropriately") {
+            #define DO_CHECK(FUNC)                                             \
+            CHECK_EXPR_TYPE(FUNC<int const>(i), int const&&);                  \
+            CHECK_EXPR_TYPE(FUNC<int const&>(i), int const&);                  \
+            CHECK_EXPR_TYPE(FUNC<int const&&>(i), int const&&);                \
+            CHECK_EXPR_TYPE(FUNC<std::string>(sc), std::string&&);             \
+            CHECK_EXPR_TYPE(FUNC<std::string&>(sc), std::string&);             \
+            CHECK_EXPR_TYPE(FUNC<std::string&&>(sc), std::string&&);
+
+            DO_CHECK(std::forward)
+            DO_CHECK(exfs::forward)
+
+            #undef DO_CHECK
+        }
+    }
+
+    GIVEN("an input type of a prvalue") {
+        THEN("the type is forwarded appropriately") {
+            #define DO_CHECK(FUNC)                                             \
+            CHECK_EXPR_TYPE(FUNC<int>(get_prvalue()), int&&);                  \
+            CHECK_EXPR_TYPE(FUNC<int&>(get_prvalue()), int&);                  \
+            CHECK_EXPR_TYPE(FUNC<int&&>(get_prvalue()), int&&);
+
+            DO_CHECK(std::forward)
+            DO_CHECK(exfs::forward)
+
+            #undef DO_CHECK
+        }
+    }
+
+    GIVEN("an input type of an xvalue") {
+        int i = 7;
+
+        THEN("the type is forwarded appropriatey") {
+            #define DO_CHECK(FUNC)                                             \
+            CHECK_EXPR_TYPE(FUNC<int>(std::move(i)), int&&);                   \
+            CHECK_EXPR_TYPE(FUNC<int&>(std::move(i)), int&);                   \
+            CHECK_EXPR_TYPE(FUNC<int&&>(std::move(i)), int&&);
+
+            DO_CHECK(std::forward);
+            DO_CHECK(exfs::forward);
+
+            #undef DO_CHECK
+        }
+    }
+
+    #undef CHECK_EXPR_TYPE
+}
+
+///
 /// exfs::as_const()
 ///
 

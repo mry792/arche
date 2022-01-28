@@ -7,8 +7,6 @@
 #include <type_traits>
 
 namespace exfs {
-// TODO: forward()
-
 /*!
     Used to *indicate* that an object may be "moved from," i.e. allowing the
     efficient transfer of resources from @p t to another object.
@@ -21,6 +19,28 @@ constexpr std::remove_reference_t<T>&& move (T&& t) noexcept {
 }
 
 // TODO: move_if_noexcept()
+
+/*!
+    Forwards lvalues as either lvalues or as rvalues, depending on @p T.
+
+    @tparam T The type to forwared @p t as.
+
+    @param[in,out] t An object that is a forwarding reference in the calling
+        context.
+ */
+template <typename T>
+constexpr T&& forward (std::remove_reference_t<T>& t) noexcept {
+    return static_cast<T&&>(t);
+}
+
+/*!
+    @overload forward()
+    Overload for rvalues.
+ */
+template <typename T>
+constexpr T&& forward (std::remove_reference_t<T>&& t) noexcept {
+    return static_cast<T&&>(t);
+}
 
 /*!
     Forms lvalue reference to const type of @p t.
