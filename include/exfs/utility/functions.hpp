@@ -53,7 +53,22 @@ constexpr std::add_const_t<T>& as_const(T& t) noexcept {
 template <typename T>
 void as_const (T const&&) = delete;
 
-// TODO: declval()
+/*!
+    Converts any type @p T to a reference type, making it possible to use member
+    functions in @c decltype expressions without the need to go through
+    constructors. @c declval is commonly used in templates where acceptable
+    template parameters may have no constructor in common, but have the same
+    member function whose return tyep is needed.
+
+    Note that @c declval can only be used in unevaluated contexts and is not
+    required to be defined; it is an error to evaluate an expression that
+    contains this function. Formally, the program is ill-formed if this
+    function is "odr-used".
+
+    @tparam T The type to get an unevaluated instance of.
+ */
+template <typename T>
+std::add_rvalue_reference_t<T> declval () noexcept;
 
 /*!
     Exchanges the given values.

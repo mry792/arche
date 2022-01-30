@@ -177,6 +177,31 @@ TEMPLATE_TEST_CASE(
 }
 
 ///
+/// exfs::declval()
+///
+
+TEST_CASE(
+    "exfs::declval",
+    "[unit][std-parity][utility]",
+) {
+    #define DO_CHECK(FUNC)                                                     \
+    CHECK(std::is_same_v<decltype(FUNC<int>()), int&&>);                       \
+    CHECK(std::is_same_v<decltype(FUNC<int&>()), int&>);                       \
+    CHECK(std::is_same_v<decltype(FUNC<int&&>()), int&&>);                     \
+    CHECK(std::is_same_v<decltype(FUNC<int const>()), int const&&>);           \
+    CHECK(std::is_same_v<decltype(FUNC<int const&>()), int const&>);           \
+    CHECK(std::is_same_v<decltype(FUNC<int const&&>()), int const&&>);         \
+    CHECK(std::is_same_v<decltype(FUNC<int volatile>()), int volatile&&>);     \
+    CHECK(std::is_same_v<decltype(FUNC<int volatile&>()), int volatile&>);     \
+    CHECK(std::is_same_v<decltype(FUNC<int volatile&&>()), int volatile&&>);
+
+    DO_CHECK(std::declval);
+    DO_CHECK(exfs::declval);
+
+    #undef DO_CHECK
+}
+
+///
 /// exfs::swap()
 ///
 
