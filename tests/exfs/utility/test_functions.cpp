@@ -274,3 +274,92 @@ TEMPLATE_TEST_CASE(
         }
     }
 }
+
+///
+/// exfs::exchange()
+///
+
+MAKE_WRAPPER(std_exchange, std::exchange)
+MAKE_WRAPPER(exfs_exchange, exfs::exchange)
+
+namespace {
+template <
+    bool noexcept_move_construct,
+    typename T_Assign_From,
+    bool noexcept_assign
+>
+struct Exchange_Obj {
+    int v;
+
+    Exchange_Obj (int v_) : v{v_} {}
+
+    Exchange_Obj (Exchange_Obj&& other) noexcept(noexcept_move_construct)
+          : v{std::move(other.v)} {};
+
+    Exchange_Obj& operator = (T_Assign_From other) noexcept(noexcept_assign) {
+        v = std::forward<T_Assign_From>(other);
+        return *this;
+    }
+};
+}  // namespace
+
+TEMPLATE_TEST_CASE(
+    "exfs::exchange",
+    "[unit][std-parity][utility]",
+    std_exchange,
+    exfs_exchange
+) {
+    TestType exchange{};
+    int new_value = -4;
+
+    #define DO_TEST(IS_MOVE_CTOR_NOTHROW, ASSIGN_TYPE, IS_ASSIGN_NOTHROW)      \
+    struct Exchange_Obj {                                                      \
+        int v;                                                                 \
+                                                                               \
+        Exchange_Obj (int v_) : v{v_} {}                                       \
+                                                                               \
+        Exchange_Obj (Exchange_Obj&& other) noexcept(IS_MOVE_CTOR_NOTHROW)     \
+          : v{other.v} {}                                                      \
+                                                                               \
+        Exchange_Obj& operator = (ASSIGN_TYPE other)                           \
+        noexcept(IS_ASSIGN_NOTHROW) {                                          \
+            v = std::forward<ASSIGN_TYPE>(other);                              \
+            return *this;                                                      \
+        }                                                                      \
+    };                                                                         \
+                                                                               \
+    Exchange_Obj obj{7};                                                       \
+                                                                               \
+    if constexpr (std::is_same_v<TestType, exfs_exchange>) {                   \
+        /* Standard library function is only noexcept in C++23. */             \
+        THEN("exchanging is appropriately nothrow") {                          \
+            constexpr bool is_noexcept =                                       \
+                noexcept(exchange(obj, std::forward<ASSIGN_TYPE>(new_value))); \
+            constexpr bool expected_noexcept =                                 \
+                IS_MOVE_CTOR_NOTHROW and IS_ASSIGN_NOTHROW;                    \
+            CHECK(is_noexcept == expected_noexcept);                           \
+        }                                                                      \
+    }                                                                          \
+                                                                               \
+    WHEN("the object is exchanged") {                                          \
+        Exchange_Obj result =                                                  \
+            exchange(obj, std::forward<ASSIGN_TYPE>(new_value));               \
+                                                                               \
+        THEN("the values are exchanged") {                                     \
+            CHECK(result.v == 7);                                              \
+            CHECK(obj.v == -4);                                                \
+        }                                                                      \
+    }
+
+    GIVEN("a nothrow move-assignable exchange object") { DO_TEST(true, int&&, true) }
+    GIVEN("a throwing move-assignable exchange object") { DO_TEST(true, int&&, false) }
+    GIVEN("a nothrow copy-assignable exchange object") { DO_TEST(true, int const&, true) }
+    GIVEN("a throwing copy-assignable exchange object") { DO_TEST(true, int const&, false) }
+
+    GIVEN("a nothrow move-assignable exchange object with throing move constructor") { DO_TEST(false, int&&, true) }
+    GIVEN("a throwing move-assignable exchange object with throing move constructor") { DO_TEST(false, int&&, false) }
+    GIVEN("a nothrow copy-assignable exchange object with throing move constructor") { DO_TEST(false, int const&, true) }
+    GIVEN("a throwing copy-assignable exchange object with throing move constructor") { DO_TEST(false, int const&, false) }
+
+    #undef DO_TEST
+}

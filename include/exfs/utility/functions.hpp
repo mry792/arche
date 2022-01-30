@@ -74,7 +74,24 @@ constexpr void swap (T& a, T& b) noexcept(
 
 // TODO: swap() for built-in arrays
 
-// TODO: exchange()
+/*!
+    Replaces the value of @p obj with @p new_value and returns the old value
+    of @p obj.
+
+    @param[in,out] obj Object whose value to replace.
+    @param[in] new_value The value to assign to @p obj.
+
+    @return The old value of @p obj.
+ */
+template <std::move_constructible T, typename U = T>
+constexpr T exchange (T& obj, U&& new_value) noexcept(
+    std::is_nothrow_move_constructible_v<T> and
+    std::is_nothrow_assignable_v<T&, U>
+) {
+    T old_value = move(obj);
+    obj = forward<U>(new_value);
+    return old_value;
+}
 }  // namespace exfs
 
 #endif  // EXFS_UTILITY_FUNCTIONS_HPP_
