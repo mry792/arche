@@ -40,6 +40,7 @@ class ArcheConan (ConanFile):
     def build_requirements (self):
         if self._run_tests:
             self.test_requires('catch2/2.13.7')
+            self.test_requires('trompeloeil/42')
 
     def config_options (self):
         if self.settings.arch == 'avr':
