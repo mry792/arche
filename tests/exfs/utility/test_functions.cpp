@@ -1,6 +1,7 @@
 #include "exfs/utility/functions.hpp"
 
 #include <string>
+#include <type_traits>
 #include <utility>
 
 #include <catch2/catch.hpp>

@@ -2,6 +2,8 @@
 find_package(Catch2 REQUIRED)
 include(Catch)
 
+find_package(trompeloeil REQUIRED)
+
 file(GLOB_RECURSE test_files CONFIGURE_DEPENDS "test_*.cpp")
 
 add_executable(unit_test
@@ -17,6 +19,7 @@ target_compile_options(unit_test
 target_link_libraries(unit_test
     # 3rd-party
     Catch2::Catch2
+    trompeloeil::trompeloeil
 
     # local
     ${PROJECT_NAME}
