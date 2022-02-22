@@ -64,6 +64,94 @@ struct incrementable_traits<T> {
 /**
  * @}
  */
+
+/**
+ * @name indirectly_readable_traits
+ * @{
+ */
+
+/**
+ * Computes the associated value type of the given type, if any. Users may
+ * specialize @c indirectly_readable_traits for a program-defined type.
+ *
+ * The primary template has no member @c value_type.
+ */
+template <typename I>
+struct indirectly_readable_traits {};
+
+/**
+ * Specialization for pointers. Only valid for pointers to object types.
+ */
+template <typename T>
+requires (std::is_object_v<T>)
+struct indirectly_readable_traits<T*> {
+    using value_type = std::remove_cv_t<T>;
+};
+
+/**
+ * Specialization for arrays.
+ */
+template <typename I>
+requires (std::is_array_v<I>)
+struct indirectly_readable_traits<I> {
+    using value_type = std::remove_cv_t<std::remove_extent_t<I>>;
+};
+
+/**
+ * Specialization to ignore const qualifiers.
+ */
+template <typename T>
+struct indirectly_readable_traits<T const> : indirectly_readable_traits<T> {};
+
+/**
+ * Specialization for @c value_type member.
+ */
+template <typename T>
+requires (
+    requires { typename T::value_type; } and
+    not requires { typename T::element_type; } and
+    std::is_object_v<typename T::value_type>
+)
+struct indirectly_readable_traits<T> {
+    using value_type = std::remove_cv_t<typename T::value_type>;
+};
+
+/**
+ * Specialization for @c element_type member.
+ */
+template <typename T>
+requires (
+    not requires { typename T::value_type; } and
+    requires { typename T::element_type; } and
+    std::is_object_v<typename T::element_type>
+)
+struct indirectly_readable_traits<T> {
+    using value_type = std::remove_cv_t<typename T::element_type>;
+};
+
+/**
+ * Specialization for having both @c value_type and @c element_type members.
+ */
+template <typename T>
+requires (
+    requires {
+        typename T::value_type;
+        typename T::element_type;
+    } and
+    std::is_object_v<typename T::value_type> and
+    std::is_object_v<typename T::element_type> and
+    std::same_as<
+        std::remove_cv_t<typename T::value_type>,
+        std::remove_cv_t<typename T::element_type>
+    >
+)
+struct indirectly_readable_traits<T> {
+    using value_type = std::remove_cv_t<typename T::value_type>;
+};
+
+/**
+ * @}
+ */
 }  // namespace exfs::iterator
 
 #endif  // EXFS_ITERATOR_TRAITS_HPP_
