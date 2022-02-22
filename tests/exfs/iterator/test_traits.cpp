@@ -2,7 +2,11 @@
 
 #include <cstddef>
 #include <iterator>
+#include <list>
+#include <map>
+#include <tuple>
 #include <type_traits>
+#include <vector>
 
 #include <catch2/catch.hpp>
 
@@ -259,3 +263,72 @@ TEMPLATE_PRODUCT_TEST_CASE(
 ) {
     CHECK(not requires { typename TestType::value_type; });
 }
+
+///
+/// aliases
+///
+
+using Alias_Test_Types = std::tuple<
+    int*,
+    int const*,
+    int volatile*,
+    int const volatile*,
+    int* const,
+    int const* const,
+    int volatile* const,
+    int const volatile* const,
+
+    typename std::vector<int>::iterator,
+    typename std::vector<int>::const_iterator,
+    typename std::list<int>::iterator,
+    typename std::list<int>::const_iterator,
+    typename std::map<int, int>::iterator,
+    typename std::map<int, int>::const_iterator,
+    std::istream_iterator<int>
+>;
+
+#define CHECK_ALIAS_PARITY(ALIAS_NAME, MODEL)                                  \
+CHECK((std::is_same_v<std::ALIAS_NAME<MODEL>, exfs::iterator::ALIAS_NAME<MODEL>>));
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::iter_value_t",
+    "[unit][std-parity][iterator]",
+    Alias_Test_Types
+) {
+    CHECK_ALIAS_PARITY(iter_value_t, TestType);
+}
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::iter_reference_t",
+    "[unit][std-parity][iterator]",
+    Alias_Test_Types
+) {
+    CHECK_ALIAS_PARITY(iter_reference_t, TestType);
+}
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::iter_difference_t",
+    "[unit][std-parity][iterator]",
+    Alias_Test_Types
+) {
+    CHECK_ALIAS_PARITY(iter_difference_t, TestType);
+}
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::iter_rvalue_reference_t",
+    "[unit][std-parity][iterator]",
+    Alias_Test_Types
+) {
+    CHECK_ALIAS_PARITY(iter_rvalue_reference_t, TestType);
+}
+
+TEMPLATE_LIST_TEST_CASE(
+// TEST_CASE(
+    "exfs::iterator::iter_common_reference_t",
+    "[unit][std-parity][iterator]",
+    Alias_Test_Types
+) {
+    CHECK_ALIAS_PARITY(iter_common_reference_t, TestType);
+}
+
+#undef CHECK_ALIAS_PARITY

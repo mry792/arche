@@ -5,6 +5,8 @@
 #include <cstddef>
 #include <type_traits>
 
+#include "exfs/dereferenceable.hpp"
+#include "exfs/iterator/iter_move.hpp"
 #include "exfs/utility/functions.hpp"
 
 namespace exfs::iterator {
@@ -148,6 +150,36 @@ requires (
 struct indirectly_readable_traits<T> {
     using value_type = std::remove_cv_t<typename T::value_type>;
 };
+
+/**
+ * @}
+ */
+
+/**
+ * @name aliases
+ * @{
+ */
+
+template <typename T>
+using iter_value_t = typename indirectly_readable_traits<
+    std::remove_cvref_t<T>>::value_type;
+
+template <dereferenceable T>
+using iter_reference_t = decltype(*exfs::declval<T&>());
+
+template <typename T>
+using iter_difference_t = typename incrementable_traits<
+    std::remove_cvref_t<T>>::difference_type;
+
+template <dereferenceable T>
+using iter_rvalue_reference_t =
+    decltype(iter_move(exfs::declval<T&>()));
+
+template <typename T>
+using iter_common_reference_t = std::common_reference_t<
+    iter_reference_t<T>,
+    iter_value_t<T>&
+>;
 
 /**
  * @}
