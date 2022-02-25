@@ -5,6 +5,7 @@
 #include <type_traits>
 
 #include "exfs/iterator/traits.hpp"
+#include "exfs/utility/functions.hpp"
 
 namespace exfs::iterator {
 namespace __detail {
@@ -37,6 +38,29 @@ std::common_reference_with<
 template <typename In>
 concept indirectly_readable =
     __detail::__IndirectlyReadableImpl<std::remove_cvref_t<In>>;
+
+/**
+ * The concept `indirectly_writable<Out, T>` specifies the requirements for
+ * writing a value whose type and value category are encoded by @p T into the
+ * referenced object of an iterator @Out.
+ *
+ * @tparam Out The iterator type under test.
+ * @tparam T The type to write to the dereferenced @p Out instance.
+ */
+template <typename Out, typename T>
+concept indirectly_writable = requires (Out&& out, T&& t) {
+    *out = exfs::forward<T>(t);
+    *exfs::forward<Out>(out) = exfs::forward<T>(t);
+
+    // These expressions prevent `indirectly_readable` objects with prvalue
+    // reference types from satisfying the syntactic requirements of
+    // `indirectly_writable` by accident, while permitting proxy references to
+    // continue to work as long as their constness is shallow.
+    // https://github.com/ericniebler/stl2/issues/381
+    const_cast<iter_reference_t<Out> const&&>(*out) = exfs::forward<T>(t);
+    const_cast<iter_reference_t<Out> const&&>(*exfs::forward<Out>(out)) =
+        exfs::forward<T>(t);
+};
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_CONCEPTS_HPP_
