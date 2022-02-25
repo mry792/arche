@@ -61,6 +61,27 @@ concept indirectly_writable = requires (Out&& out, T&& t) {
     const_cast<iter_reference_t<Out> const&&>(*exfs::forward<Out>(out)) =
         exfs::forward<T>(t);
 };
+
+/**
+ * This concept specifies requirements on types that can be incremented with the
+ * pre- and post-increment operators, but those increment operations are not
+ * necessarily equality-preserving, and the type itself is not required to
+ * be @c equality_comparable.
+ *
+ * For @c weakly_incrementable types, `a == b` does not imply that `++a == ++b`.
+ * Algorithms on weakly incrementable types must be single-pass algorithms.
+ * These algorithms can be used with istreams as the source of the input data
+ * through @c istream_iterator.
+ */
+template <typename I>
+concept weakly_incrementable =
+    std::movable<I> and
+    requires (I i) {
+        typename iter_difference_t<I>;
+        requires std::signed_integral<iter_difference_t<I>>;
+        { ++i } -> std::same_as<I&>;  // not required to be equality-preserving
+        i++;                          // not required to be equality-preserving
+    };
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_CONCEPTS_HPP_

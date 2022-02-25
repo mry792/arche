@@ -2,7 +2,10 @@
 
 #include <forward_list>
 #include <iterator>
+#include <map>
 #include <memory>
+#include <sstream>
+#include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -40,7 +43,24 @@ using Iterator_Types = std::tuple<
     typename std::vector<int>::iterator,
     typename std::vector<int>::const_iterator,
     typename std::vector<int>::iterator const,
-    typename std::vector<int>::const_iterator const
+    typename std::vector<int>::const_iterator const,
+    typename std::vector<bool>::iterator,
+    typename std::vector<bool>::const_iterator,
+    typename std::vector<bool>::iterator const,
+    typename std::vector<bool>::const_iterator const,
+    typename std::map<int, double>::iterator,
+    typename std::map<int, double>::const_iterator,
+    typename std::map<int, double>::iterator const,
+    typename std::map<int, double>::const_iterator const
+>;
+
+using Other_Types = std::tuple<
+    int,
+    double,
+    std::string,
+    std::pair<std::string&, int const>,
+    std::vector<double>,
+    std::ostream
 >;
 
 template <typename... Tuples>
@@ -49,7 +69,8 @@ using tuple_cat_result_t = decltype(std::tuple_cat(std::declval<Tuples&>()...));
 using All_Test_Types = tuple_cat_result_t<
     Pointer_Types,
     Smart_Pointer_Types,
-    Iterator_Types
+    Iterator_Types,
+    Other_Types
 >;
 }  // namespace
 
@@ -79,6 +100,18 @@ TEMPLATE_LIST_TEST_CASE(
 ) {
     CHECK((std::indirectly_writable<TestType, int>) ==
         (exfs::iterator::indirectly_writable<TestType, int>));
+}
+
+///
+/// concept weakly_incrementable
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::weakly_incrementable",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK_CONCEPT_PARITY(weakly_incrementable, TestType);
 }
 
 #undef CHECK_CONCEPT_PARITY
