@@ -5,6 +5,7 @@
 #include <type_traits>
 
 #include "exfs/iterator/traits.hpp"
+#include "exfs/referenceable.hpp"
 #include "exfs/utility/functions.hpp"
 
 namespace exfs::iterator {
@@ -106,6 +107,30 @@ concept incrementable =
     requires (I i) {
         { i++ } -> std::same_as<I>;
     };
+
+/**
+ * The @c input_or_output_iterator concept forms the basis of the iterator
+ * concept taxonomy; every iterator type satisfies the @c
+ * input_or_output_iterator requirements.
+ *
+ * `input_or_output_iterator` itself only specifies operations for dereferencing
+ * and incrementing an iterator. Most algorithms will require additional
+ * operations, for example:
+ *   - comparing iterators with sentinels (see @c sentinel_for)
+ *   - reading values from an iterator (see @c indirectly_readable and @c
+ *     input_iterator)
+ *   - writing values to an iterator (see @c indirectly_writable and @c
+ *     output_iterator)
+ *   - a richer set of iterator movements (see @c forward_iterator, @c
+ *     bidirectional_iterator, @c random_access_iterator)
+ *
+ * Unlike the @c LegacyIterator requirements, the @c input_or_output_iterator
+ * concept does not require copyability.
+ */
+template <typename I>
+concept input_or_output_iterator = requires (I i) {
+    { *i } -> referenceable;
+} and weakly_incrementable<I>;
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_CONCEPTS_HPP_

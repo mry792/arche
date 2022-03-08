@@ -126,4 +126,16 @@ TEMPLATE_LIST_TEST_CASE(
     CHECK_CONCEPT_PARITY(incrementable, TestType);
 }
 
+///
+/// concept input_or_output_iterator
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::input_or_output_iterator",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK_CONCEPT_PARITY(input_or_output_iterator, TestType);
+}
+
 #undef CHECK_CONCEPT_PARITY
