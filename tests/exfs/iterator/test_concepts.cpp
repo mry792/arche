@@ -114,4 +114,16 @@ TEMPLATE_LIST_TEST_CASE(
     CHECK_CONCEPT_PARITY(weakly_incrementable, TestType);
 }
 
+///
+/// concept incrementable
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::incrementable",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK_CONCEPT_PARITY(incrementable, TestType);
+}
+
 #undef CHECK_CONCEPT_PARITY

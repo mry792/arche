@@ -82,6 +82,30 @@ concept weakly_incrementable =
         { ++i } -> std::same_as<I&>;  // not required to be equality-preserving
         i++;                          // not required to be equality-preserving
     };
+
+/**
+ * This concept specifies requirements on types that can be incremented with the
+ * pre- and post-increment operators, whose increment operations are equality-
+ * preserving, and the type is @c std::equality_comparable.
+ *
+ * Unlike with @c weakly_incrementable, which only support single-pass
+ * algorithms, multi-pass one-directional algorithms can be used with types
+ * that model @c incrementable.
+ *
+ * @name Semantic Requirements
+ *
+ * `I` models @c incrementable only if given any two incrementable objects @c a
+ * and @c b of type @c I:
+ *   - `bool(a == b)` implies bool(a++ == b)
+ *   - `bool(a == b)` implies `bool(((void)a++, a) == ++b)
+ */
+template <typename I>
+concept incrementable =
+    std::regular<I> and
+    weakly_incrementable<I> and
+    requires (I i) {
+        { i++ } -> std::same_as<I>;
+    };
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_CONCEPTS_HPP_
