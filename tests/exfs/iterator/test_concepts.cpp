@@ -151,4 +151,23 @@ TEMPLATE_LIST_TEST_CASE(
         (exfs::iterator::sentinel_for<TestType, TestType>));
 }
 
+///
+/// concept sentinel_for
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::sized_sentinel_for",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK((std::sized_sentinel_for<TestType, TestType>) ==
+        (exfs::iterator::sized_sentinel_for<TestType, TestType>));
+
+    CHECK((std::sized_sentinel_for<TestType, int>) ==
+        (exfs::iterator::sized_sentinel_for<TestType, int>));
+
+    CHECK((std::sized_sentinel_for<int, TestType>) ==
+        (exfs::iterator::sized_sentinel_for<int, TestType>));
+}
+
 #undef CHECK_CONCEPT_PARITY

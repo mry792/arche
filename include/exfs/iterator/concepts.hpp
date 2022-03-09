@@ -142,6 +142,45 @@ concept sentinel_for =
     std::semiregular<S> and
     exfs::iterator::input_or_output_iterator<I> and
     exfs::weakly_equality_comparable_with<S, I>;
+
+/**
+ * This variable template can be used to prevent iterators and sentinels that
+ * can be subtracted but do not actually model @c sized_sentinel_for from
+ * satisfying the concept.
+ *
+ * The variable template is allowed to be specialized for cv-unqualified
+ * non-array object types @p S and @p I, as long as at least one of which is a
+ * program-defined type. Such specializations shall be usable in constant
+ * expressions and have type `const bool`.
+ */
+template <typename S, typename I>
+inline constexpr bool disable_sized_sentinel_for = false;
+
+/**
+ * This concept specifies that objects of the specified types can be subtracted
+ * to compute the distance between them in constant time.
+ *
+ * Let @c i be an iterator of type @p I, and @c s be a sentinel of type @p S
+ * such that `[i, s)` denotes a range. Let @c n be the smallest number of
+ * applications of @c ++i necessary to make `bool(i == s)` be true. @p I and @p
+ * S model `sized_sentinel_for<S, I>` only if all the following are true:
+ *   - if @c n is representable by @c iter_difference_t<I>, then `s - i` is
+ *     well-defined and equals @c n
+ *   - if @c -n is representable by @c iter_difference_t<I>, then `i - s` is
+ *     well-defined and equals @c -n
+ *   - subtraction between @c i and @c s has constant time complexity
+ *
+ * @tparam S The sentinel type.
+ * @tparam I The iterator type @p S is potentially a sentinel for.
+ */
+template <typename S, typename I>
+concept sized_sentinel_for =
+    sentinel_for<S, I> and
+    not disable_sized_sentinel_for<std::remove_cv_t<S>, std::remove_cv_t<I>> and
+    requires (I const& i, S const& s) {
+        { s - i } -> std::same_as<iter_difference_t<I>>;
+        { i - s } -> std::same_as<iter_difference_t<I>>;
+    };
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_CONCEPTS_HPP_
