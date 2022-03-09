@@ -48,3 +48,25 @@ TEST_CASE(
     CHECK(legacy_iterator<Random_Access_Const_Iterator>);
     CHECK(legacy_iterator<Contiguous_Const_Iterator>);
 }
+
+TEST_CASE(
+    "exfs::iterator::legacy_input_iterator",
+    "[unit][iterator]"
+) {
+    using exfs::iterator::legacy_input_iterator;
+
+    CHECK(not legacy_input_iterator<int>);
+    CHECK(not legacy_input_iterator<Basic_Iterator>);
+    CHECK(not legacy_input_iterator<Output_Iterator>);
+    CHECK(legacy_input_iterator<Input_Iterator>);
+
+    CHECK(legacy_input_iterator<Forward_Iterator>);
+    CHECK(legacy_input_iterator<Bidirectional_Iterator>);
+    CHECK(legacy_input_iterator<Random_Access_Iterator>);
+    CHECK(legacy_input_iterator<Contiguous_Iterator>);
+
+    CHECK(legacy_input_iterator<Forward_Const_Iterator>);
+    CHECK(legacy_input_iterator<Bidirectional_Const_Iterator>);
+    CHECK(legacy_input_iterator<Random_Access_Const_Iterator>);
+    CHECK(legacy_input_iterator<Contiguous_Const_Iterator>);
+}
