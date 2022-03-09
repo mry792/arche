@@ -4,8 +4,8 @@
 #include <concepts>
 #include <type_traits>
 
+#include "exfs/concepts.hpp"
 #include "exfs/iterator/traits.hpp"
-#include "exfs/referenceable.hpp"
 #include "exfs/utility/functions.hpp"
 
 namespace exfs::iterator {
