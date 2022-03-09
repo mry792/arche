@@ -138,4 +138,17 @@ TEMPLATE_LIST_TEST_CASE(
     CHECK_CONCEPT_PARITY(input_or_output_iterator, TestType);
 }
 
+///
+/// concept sentinel_for
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::sentinel_for",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK((std::sentinel_for<TestType, TestType>) ==
+        (exfs::iterator::sentinel_for<TestType, TestType>));
+}
+
 #undef CHECK_CONCEPT_PARITY

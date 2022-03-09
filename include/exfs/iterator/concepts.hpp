@@ -131,6 +131,17 @@ template <typename I>
 concept input_or_output_iterator = requires (I i) {
     { *i } -> referenceable;
 } and weakly_incrementable<I>;
+
+/**
+ * The @c sentinel_for concept specifies the relationship between an @c
+ * input_or_output_iterator type and a @c semiregular type whose values denote
+ * a range.
+ */
+template <typename S, typename I>
+concept sentinel_for =
+    std::semiregular<S> and
+    exfs::iterator::input_or_output_iterator<I> and
+    exfs::weakly_equality_comparable_with<S, I>;
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_CONCEPTS_HPP_
