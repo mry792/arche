@@ -88,6 +88,21 @@ concept legacy_forward_iterator =
         {  i++ } -> std::convertible_to<I const&>;
         { *i++ } -> std::same_as<iter_reference_t<I>>;
     };
+
+/**
+ * A @c legacy_bidirectional_iterator is a @c legacy_forward_iterator that can
+ * be moved in both directions (i.e. incremented and decremented). If a @c
+ * legacy_bidirectional_iterator originates from a container, then it's @c
+ * value_type is the same as the container's.
+ */
+template <typename I>
+concept legacy_bidirectional_iterator =
+    legacy_forward_iterator<I> and
+    requires (I i) {
+        {  --i } -> std::same_as<I&>;
+        {  i-- } -> std::convertible_to<I const&>;
+        { *i-- } -> std::same_as<iter_reference_t<I>>;
+    };
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_LEGACY_HPP_
