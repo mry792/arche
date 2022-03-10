@@ -5,6 +5,7 @@
 
 #include "exfs/concepts.hpp"
 #include "exfs/iterator/traits.hpp"
+#include "exfs/utility/functions.hpp"
 
 namespace exfs::iterator {
 /**
@@ -44,6 +45,22 @@ concept legacy_input_iterator =
         >;
         requires std::signed_integral<
             typename incrementable_traits<I>::difference_type>;
+    };
+
+/**
+ * This concept is a refinement of the @c legacy_iterator concept that can write
+ * to the pointed-to element by a value of type @c V. When an iterator that
+ * models @c legacy_forward_iterator, @c legacy_bidirectional_iterator, or @c
+ * legacy_random_access_iterator satisfies the @c legacy_output_iterator
+ * concept, it is described as "mutable".
+ */
+template <typename I, typename V>
+concept legacy_output_iterator =
+    legacy_iterator<I> and
+    requires (I i, V&& v) {
+        *i = exfs::forward<V>(v);
+        { i++ } -> std::convertible_to<I const&>;
+        *i++ = exfs::forward<V>(v);
     };
 }  // exfs::iterator
 

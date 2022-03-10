@@ -70,3 +70,26 @@ TEST_CASE(
     CHECK(legacy_input_iterator<Random_Access_Const_Iterator>);
     CHECK(legacy_input_iterator<Contiguous_Const_Iterator>);
 }
+
+TEST_CASE(
+    "exfs::iterator::legacy_output_iterator",
+    "[unit][iterator]"
+) {
+    using exfs::iterator::legacy_output_iterator;
+
+    CHECK(not legacy_output_iterator<int, int>);
+    CHECK(not legacy_output_iterator<Basic_Iterator, int>);
+    CHECK(legacy_output_iterator<Output_Iterator, int>);
+    CHECK(not legacy_output_iterator<Input_Iterator, int>);
+
+    // NOTE that a std::set::iterator is not an output iterator.
+    CHECK(legacy_output_iterator<Forward_Iterator, int>);
+    CHECK(not legacy_output_iterator<Bidirectional_Iterator, int>);
+    CHECK(legacy_output_iterator<Random_Access_Iterator, int>);
+    CHECK(legacy_output_iterator<Contiguous_Iterator, int>);
+
+    CHECK(not legacy_output_iterator<Forward_Const_Iterator, int>);
+    CHECK(not legacy_output_iterator<Bidirectional_Const_Iterator, int>);
+    CHECK(not legacy_output_iterator<Random_Access_Const_Iterator, int>);
+    CHECK(not legacy_output_iterator<Contiguous_Const_Iterator, int>);
+}
