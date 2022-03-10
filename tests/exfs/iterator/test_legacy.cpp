@@ -93,3 +93,28 @@ TEST_CASE(
     CHECK(not legacy_output_iterator<Random_Access_Const_Iterator, int>);
     CHECK(not legacy_output_iterator<Contiguous_Const_Iterator, int>);
 }
+
+TEST_CASE(
+    "exfs::iterator::legacy_forward_iterator",
+    "[unit][iterator]"
+) {
+    using exfs::iterator::legacy_forward_iterator;
+
+    // NOTE that std::istream_iterator fits all the requirements of
+    // legacy_forward_iterator except the "multipass guarantee" which is not
+    // expressible using C++20 concepts.
+    CHECK(not legacy_forward_iterator<int>);
+    CHECK(not legacy_forward_iterator<Basic_Iterator>);
+    CHECK(not legacy_forward_iterator<Output_Iterator>);
+    // CHECK(not legacy_forward_iterator<Input_Iterator>);
+
+    CHECK(legacy_forward_iterator<Forward_Iterator>);
+    CHECK(legacy_forward_iterator<Bidirectional_Iterator>);
+    CHECK(legacy_forward_iterator<Random_Access_Iterator>);
+    CHECK(legacy_forward_iterator<Contiguous_Iterator>);
+
+    CHECK(legacy_forward_iterator<Forward_Const_Iterator>);
+    CHECK(legacy_forward_iterator<Bidirectional_Const_Iterator>);
+    CHECK(legacy_forward_iterator<Random_Access_Const_Iterator>);
+    CHECK(legacy_forward_iterator<Contiguous_Const_Iterator>);
+}

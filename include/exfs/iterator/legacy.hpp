@@ -2,6 +2,7 @@
 #define EXFS_ITERATOR_LEGACY_HPP_
 
 #include <concepts>
+#include <type_traits>
 
 #include "exfs/concepts.hpp"
 #include "exfs/iterator/traits.hpp"
@@ -61,6 +62,31 @@ concept legacy_output_iterator =
         *i = exfs::forward<V>(v);
         { i++ } -> std::convertible_to<I const&>;
         *i++ = exfs::forward<V>(v);
+    };
+
+/**
+ * This concept describes a @c legacy_iterator that can read data from the
+ * pointed-to element. Unlike @c legacy_input_iterator and @c
+ * legacy_output_iterator, it can be used in multipass algorithms.
+ *
+ * If a @c legacy_forward_iterator originates from a container, then it's @c
+ * value_type is the same as the container's.
+ *
+ * @warning This concept does not check that @p I provides a "multipass
+ *     guarantee." This is not currently expressible with concepts.
+ */
+template <typename I>
+concept legacy_forward_iterator =
+    legacy_input_iterator<I> and
+    std::constructible_from<I> and
+    std::is_lvalue_reference_v<iter_reference_t<I>> and
+    std::same_as<
+        std::remove_cvref_t<iter_reference_t<I>>,
+        typename indirectly_readable_traits<I>::value_type
+    > and
+    requires (I i) {
+        {  i++ } -> std::convertible_to<I const&>;
+        { *i++ } -> std::same_as<iter_reference_t<I>>;
     };
 }  // exfs::iterator
 
