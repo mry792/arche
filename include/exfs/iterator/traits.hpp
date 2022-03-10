@@ -160,6 +160,14 @@ struct indirectly_readable_traits<T> {
  * @{
  */
 
+/**
+ * Computes the value type of @p T.
+ *
+ * @todo Add alternative implementation for specializations of @c
+ * iterator_traits.
+ *
+ * @tparam T The iterator type in question.
+ */
 template <typename T>
 using iter_value_t = typename indirectly_readable_traits<
     std::remove_cvref_t<T>>::value_type;
