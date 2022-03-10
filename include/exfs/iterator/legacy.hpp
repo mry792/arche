@@ -103,6 +103,29 @@ concept legacy_bidirectional_iterator =
         {  i-- } -> std::convertible_to<I const&>;
         { *i-- } -> std::same_as<iter_reference_t<I>>;
     };
+
+/**
+ * A @c legacy_random_access_iterator is a @c legacy_bidirectional_iterator that
+ * can be moved to point to any element in constant time. If a @c
+ * legacy_random_access_iterator originates from a container, then it's @c
+ * value_type is the same as the container's.
+ *
+ * A pointer to an element of an array satisfies all requirements of @c
+ * legacy_random_access_iterator.
+ */
+template <typename I>
+concept legacy_random_access_iterator =
+    legacy_bidirectional_iterator<I> and
+    std::totally_ordered<I> and
+    requires (I i, typename incrementable_traits<I>::difference_type n) {
+        { i += n } -> std::same_as<I&>;
+        { i -= n } -> std::same_as<I&>;
+        { i +  n } -> std::same_as<I>;
+        { n +  i } -> std::same_as<I>;
+        { i -  n } -> std::same_as<I>;
+        { i -  i } -> std::same_as<decltype(n)>;
+        { i[n]   } -> std::convertible_to<iter_reference_t<I>>;
+    };
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_LEGACY_HPP_
