@@ -306,6 +306,45 @@ TEMPLATE_LIST_TEST_CASE(
     CHECK_ALIAS_PARITY(iter_reference_t, TestType);
 }
 
+struct Member_Ref {
+    struct reference;
+};
+
+struct Member_Ref_Derefable {
+    struct reference;
+    struct other_ref;
+
+    other_ref& operator * ();
+};
+
+struct Derefable {
+    struct other_ref;
+
+    other_ref& operator * ();
+};
+
+TEST_CASE(
+    "exfs::iterator::iter_reference_t - focus tests",
+    "[unit][iterator]"
+) {
+    using exfs::iterator::iter_reference_t;
+
+    CHECK(std::is_same_v<
+        iter_reference_t<Member_Ref>,
+        Member_Ref::reference
+    >);
+
+    CHECK(std::is_same_v<
+        iter_reference_t<Member_Ref_Derefable>,
+        Member_Ref_Derefable::reference
+    >);
+
+    CHECK(std::is_same_v<
+        iter_reference_t<Derefable>,
+        Derefable::other_ref&
+    >);
+}
+
 TEMPLATE_LIST_TEST_CASE(
     "exfs::iterator::iter_difference_t",
     "[unit][std-parity][iterator]",

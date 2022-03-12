@@ -172,8 +172,35 @@ template <typename T>
 using iter_value_t = typename indirectly_readable_traits<
     std::remove_cvref_t<T>>::value_type;
 
+/**
+ * Computes the reference type of @p T.
+ *
+ * The alias template @c iter_reference_t<T> is equal to the following:
+ *   - if @c T::reference exists and names a type, then @c T::reference
+ *     (note that this is a deviation from the standard library specification)
+ *   - else if T is dereferenceable, this is @c decltype(*declval<T&>())
+ *   - else @c iter_reference_t is undefined
+ *
+ * @tparam T The iterator type in question.
+ */
+template <typename T>
+struct iter_reference {};
+
+template <typename T>
+requires (requires { typename T::reference; })
+struct iter_reference<T> {
+    using type = typename T::reference;
+};
+
 template <dereferenceable T>
-using iter_reference_t = decltype(*exfs::declval<T&>());
+requires (not requires { typename T::reference; })
+struct iter_reference<T> {
+    using type = decltype(*exfs::declval<T&>());
+};
+
+template <typename T>
+requires (requires { typename iter_reference<T>::type; })
+using iter_reference_t = typename iter_reference<T>::type;
 
 template <typename T>
 using iter_difference_t = typename incrementable_traits<
