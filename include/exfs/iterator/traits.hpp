@@ -249,6 +249,14 @@ struct iter_pointer<T> {
 template <typename T>
 using iter_pointer_t = typename iter_pointer<std::remove_cvref_t<T>>::type;
 
+/**
+ * Computes the difference type of @p T.
+ *
+ * @todo Add alternative implementation for specializations of @c
+ * iterator_traits.
+ *
+ * @tparam T The iterator type in question.
+ */
 template <typename T>
 using iter_difference_t = typename incrementable_traits<
     std::remove_cvref_t<T>>::difference_type;
