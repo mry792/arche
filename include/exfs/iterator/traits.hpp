@@ -261,6 +261,11 @@ template <typename T>
 using iter_difference_t = typename incrementable_traits<
     std::remove_cvref_t<T>>::difference_type;
 
+/**
+ * Computes the rvalue reference type of @p T.
+ *
+ * @tparam T The iterator type in question.
+ */
 template <dereferenceable T>
 using iter_rvalue_reference_t =
     decltype(iter_move(exfs::declval<T&>()));
