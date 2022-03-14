@@ -267,6 +267,7 @@ using iter_difference_t = typename incrementable_traits<
  * @tparam T The iterator type in question.
  */
 template <dereferenceable T>
+requires (requires { iter_move(exfs::declval<T&>()); })
 using iter_rvalue_reference_t =
     decltype(iter_move(exfs::declval<T&>()));
 
