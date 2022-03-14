@@ -278,13 +278,19 @@ using Alias_Test_Types = std::tuple<
     int volatile* const,
     int const volatile* const,
 
+    int* const&,
+    int const*&,
+
     typename std::vector<int>::iterator,
     typename std::vector<int>::const_iterator,
     typename std::list<int>::iterator,
     typename std::list<int>::const_iterator,
     typename std::map<int, int>::iterator,
     typename std::map<int, int>::const_iterator,
-    std::istream_iterator<int>
+    std::istream_iterator<int>,
+
+    typename std::vector<int>::iterator&,
+    typename std::list<int>::iterator const&
 >;
 
 #define CHECK_ALIAS_PARITY(ALIAS_NAME, MODEL)                                  \
