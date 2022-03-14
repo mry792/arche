@@ -271,6 +271,14 @@ requires (requires { iter_move(exfs::declval<T&>()); })
 using iter_rvalue_reference_t =
     decltype(iter_move(exfs::declval<T&>()));
 
+/**
+ * Computes the common reference type of @p T.
+ *
+ * This is the common reference type between its reference type and an lvalue
+ * reference to its value type.
+ *
+ * @tparam T The iterator type in question.
+ */
 template <typename T>
 using iter_common_reference_t = std::common_reference_t<
     iter_reference_t<T>,
