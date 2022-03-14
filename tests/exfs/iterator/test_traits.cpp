@@ -345,6 +345,47 @@ TEST_CASE(
     >);
 }
 
+TEST_CASE(
+    "exfs::iterator::iter_pointer_t",
+    "[unit][iterator]"
+) {
+    using exfs::iterator::iter_pointer_t;
+
+    #define CHECK_ITER_PTR(QUERY_TYPE, EXPECTED_TYPE)                          \
+    CHECK((std::is_same_v<iter_pointer_t<QUERY_TYPE>, EXPECTED_TYPE>));
+
+    CHECK_ITER_PTR(int*, int*);
+    CHECK_ITER_PTR(int const*, int const*);
+    CHECK_ITER_PTR(int volatile*, int volatile*);
+    CHECK_ITER_PTR(int const volatile*, int const volatile*);
+    CHECK_ITER_PTR(int* const, int*);
+    CHECK_ITER_PTR(int const* const, int const*);
+    CHECK_ITER_PTR(int volatile* const, int volatile*);
+    CHECK_ITER_PTR(int const volatile* const, int const volatile*);
+
+    CHECK_ITER_PTR(int const*&, int const*);
+
+    CHECK_ITER_PTR(typename std::vector<int>::iterator, int*);
+    CHECK_ITER_PTR(typename std::vector<int>::const_iterator, int const*);
+    CHECK_ITER_PTR(typename std::list<int>::iterator, int*);
+    CHECK_ITER_PTR(typename std::list<int>::const_iterator, int const*);
+    CHECK((std::is_same_v<
+        iter_pointer_t<typename std::map<int, int>::iterator>,
+        std::pair<int const, int>*
+    >));
+    CHECK((std::is_same_v<
+        iter_pointer_t<typename std::map<int, int>::const_iterator>,
+        std::pair<int const, int> const*
+    >));
+    CHECK_ITER_PTR(std::istream_iterator<int>, int const*);
+
+    CHECK_ITER_PTR(std::unique_ptr<int>, int*);
+    CHECK_ITER_PTR(std::unique_ptr<int> const, int*);
+    CHECK_ITER_PTR(std::unique_ptr<int const>, int const*);
+
+    #undef CHECK_ITER_PTR
+}
+
 TEMPLATE_LIST_TEST_CASE(
     "exfs::iterator::iter_difference_t",
     "[unit][std-parity][iterator]",
