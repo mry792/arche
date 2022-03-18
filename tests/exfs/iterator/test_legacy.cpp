@@ -200,3 +200,86 @@ TEST_CASE(
 
     #undef CHECK_CATEGORY
 }
+
+struct Iter_All_Members {
+    struct difference_type;
+    struct value_type;
+    struct pointer;
+    struct reference;
+    struct iterator_category;
+};
+
+TEMPLATE_TEST_CASE(
+    "exfs::iterator::iterator_traits - all members",
+    "[unit][std-parity][iterator]",
+    std::iterator_traits<Iter_All_Members>,
+    exfs::iterator::iterator_traits<Iter_All_Members>
+) {
+    #define DO_CHECK(TRAIT)                                                    \
+    CHECK(std::is_same_v<typename TestType::TRAIT, Iter_All_Members::TRAIT>);
+
+    DO_CHECK(difference_type);
+    DO_CHECK(value_type);
+    DO_CHECK(pointer);
+    DO_CHECK(reference);
+    DO_CHECK(iterator_category);
+
+    #undef DO_CHECK
+}
+
+struct Iter_Four_Members {
+    struct difference_type;
+    struct value_type;
+    // struct pointer;
+    struct reference;
+    struct iterator_category;
+};
+
+TEMPLATE_TEST_CASE(
+    "exfs::iterator::iterator_traits - all members except pointer",
+    "[unit][std-parity][iterator]",
+    std::iterator_traits<Iter_Four_Members>,
+    exfs::iterator::iterator_traits<Iter_Four_Members>
+) {
+    #define DO_CHECK(TRAIT)                                                    \
+    CHECK(std::is_same_v<typename TestType::TRAIT, Iter_Four_Members::TRAIT>);
+
+    DO_CHECK(difference_type);
+    DO_CHECK(value_type);
+    CHECK(std::is_same_v<typename TestType::pointer, void>);
+    DO_CHECK(reference);
+    DO_CHECK(iterator_category);
+
+    #undef DO_CHECK
+}
+
+// TODO: Test different iterator categories with iterator_traits.
+
+TEST_CASE(
+    "exfs::iterator::iterator_traits - pointer specialization",
+    "[unit][std-parity][iterator]"
+) {
+    #define DO_TEST(NAMESPACE, QUALIFIERS)                                     \
+    {                                                                          \
+        using traits = NAMESPACE::iterator_traits<int QUALIFIERS*>;            \
+        CHECK(std::is_same_v<traits::difference_type, std::ptrdiff_t>);        \
+        CHECK(std::is_same_v<traits::value_type, int>);                        \
+        CHECK(std::is_same_v<traits::pointer, int QUALIFIERS*>);               \
+        CHECK(std::is_same_v<traits::reference, int QUALIFIERS&>);             \
+        CHECK(std::is_same_v<                                                  \
+            traits::iterator_category, NAMESPACE::random_access_iterator_tag>);\
+        CHECK(std::is_same_v<                                                  \
+                traits::iterator_concept, NAMESPACE::contiguous_iterator_tag>);\
+    }
+
+    DO_TEST(std, );
+    DO_TEST(std, const);
+    DO_TEST(std, volatile);
+    DO_TEST(std, const volatile);
+    DO_TEST(exfs::iterator, );
+    DO_TEST(exfs::iterator, const);
+    DO_TEST(exfs::iterator, volatile);
+    DO_TEST(exfs::iterator, const volatile);
+
+    #undef DO_TEST
+}

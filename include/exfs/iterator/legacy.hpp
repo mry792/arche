@@ -179,6 +179,134 @@ struct iterator_category<Iter> {
 
 template <typename Iter>
 using iterator_category_t = typename iterator_category<Iter>::type;
+
+namespace __detail {
+
+/**
+ * The standard library prescribes only specific specializations of @c
+ * iterator_traits. To achieve the implementation variability required without
+ * specialization, this template is used as a base class with the desired
+ * variability as specializations.
+ *
+ * Primary template for @c __iter_traits has no members. (It is
+ * SFINAE-friendly.)
+ */
+template <typename Iter>
+struct __iter_traits {};
+
+/**
+ * Specialization of @c __iter_traits for when @p Iter defines all expected
+ * member types.
+ */
+template <typename Iter>
+requires (requires {
+    typename Iter::difference_type;
+    typename Iter::value_type;
+    typename Iter::pointer;
+    typename Iter::reference;
+    typename Iter::iterator_category;
+})
+struct __iter_traits<Iter> {
+    using difference_type   = typename Iter::difference_type;
+    using value_type        = typename Iter::value_type;
+    using pointer           = typename Iter::pointer;
+    using reference         = typename Iter::reference;
+    using iterator_category = typename Iter::iterator_category;
+};
+
+/**
+ * Specialization of @c __iter_traits for when @p Iter defines all member types
+ * except a @c pointer member type.
+ */
+template <typename Iter>
+requires (
+    requires {
+        typename Iter::difference_type;
+        typename Iter::value_type;
+        // typename Iter::pointer;
+        typename Iter::reference;
+        typename Iter::iterator_category;
+    } and
+    not requires { typename Iter::pointer; }
+)
+struct __iter_traits<Iter> {
+    using difference_type   = typename Iter::difference_type;
+    using value_type        = typename Iter::value_type;
+    using pointer           = void;
+    using reference         = typename Iter::reference;
+    using iterator_category = typename Iter::iterator_category;
+};
+
+template <typename Iter>
+struct __safe_iter_ptr {
+    using type = void;
+};
+
+template <typename Iter>
+requires (requires { typename exfs::iterator::iter_pointer_t<Iter>; })
+struct __safe_iter_ptr<Iter> {
+    using type = exfs::iterator::iter_pointer_t<Iter>;
+};
+
+template <legacy_input_iterator Iter>
+struct __iter_traits<Iter> {
+    using difference_type   = typename incrementable_traits<Iter>::difference_type;
+    using value_type        = typename indirectly_readable_traits<Iter>::value_type;
+    using pointer           = typename __safe_iter_ptr<Iter>::type;
+    using reference         = iter_reference_t<Iter>;
+    using iterator_category = iterator_category_t<Iter>;
+};
+
+template <typename T>
+struct __safe_iter_diff {
+    using type = void;
+};
+
+template <typename T>
+requires (requires { typename incrementable_traits<T>::difference_type; })
+struct __safe_iter_diff<T> {
+    using type = typename incrementable_traits<T>::difference_type;
+};
+
+template <legacy_iterator Iter>
+struct __iter_traits<Iter> {
+    using difference_type   = typename __safe_iter_diff<Iter>::type;
+    using value_type        = void;
+    using pointer           = void;
+    using reference         = void;
+    using iterator_category = output_iterator_tag;
+};
+}  // namespace __detail
+
+/**
+ * The class @c iterator_traits is the type trait that provides uniform
+ * interface to the properties of @c LegacyIterator types. This makes it
+ * possible to implement algorithms only in terms of iterators.
+ *
+ * The template can be specialized for user-defined iterators so that the
+ * information about the iterator can be retrieved even if the type does not
+ * provide the usual aliases.
+ *
+ * User specializations may define the member type @c iterator_concept to one of
+ * the iterator category tags to indicate conformance to the respective
+ * iterator concepts.
+ */
+template <typename T>
+struct iterator_traits : __detail::__iter_traits<T> {};
+
+/**
+ * Specialization of @c iterator_traits for pointers.
+ */
+template <typename T>
+requires (std::is_object_v<T>)
+struct iterator_traits<T*> {
+    using difference_type   = std::ptrdiff_t;
+    using value_type        = std::remove_cv_t<T>;
+    using pointer           = T*;
+    using reference         = T&;
+    using iterator_category = random_access_iterator_tag;
+    using iterator_concept  = contiguous_iterator_tag;
+};
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_LEGACY_HPP_
