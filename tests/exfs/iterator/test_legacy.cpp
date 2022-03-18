@@ -20,12 +20,16 @@ using Input_Iterator = std::istream_iterator<int>;
 using Forward_Iterator = typename std::forward_list<int>::iterator;
 using Bidirectional_Iterator = typename std::set<int>::iterator;
 using Random_Access_Iterator = typename std::vector<int>::iterator;
-using Contiguous_Iterator = Random_Access_Iterator;
+using Contiguous_Iterator = int*;
 
 using Forward_Const_Iterator = typename std::forward_list<int>::const_iterator;
 using Bidirectional_Const_Iterator = typename std::set<int>::const_iterator;
 using Random_Access_Const_Iterator = typename std::vector<int>::const_iterator;
-using Contiguous_Const_Iterator = Random_Access_Const_Iterator;
+using Contiguous_Const_Iterator = int const*;
+
+///
+/// legacy concepts
+///
 
 TEST_CASE(
     "exfs::iterator::legacy_iterator",
@@ -161,4 +165,38 @@ TEST_CASE(
     CHECK(not legacy_random_access_iterator<Bidirectional_Const_Iterator>);
     CHECK(legacy_random_access_iterator<Random_Access_Const_Iterator>);
     CHECK(legacy_random_access_iterator<Contiguous_Const_Iterator>);
+}
+
+///
+/// legacy traits
+///
+
+TEST_CASE(
+    "exfs::iterator::iterator_category",
+    "[unit][std-parity][iterator]"
+) {
+    using exfs::iterator::iterator_category_t;
+
+    #define CHECK_CATEGORY(ITER_TYPE, CATEGORY)                                \
+    CHECK((std::is_same_v<                                                     \
+        typename std::iterator_traits<ITER_TYPE>::iterator_category,           \
+        std::CATEGORY ## _tag                                                  \
+    >));                                                                       \
+    CHECK((std::is_same_v<                                                     \
+        iterator_category_t<ITER_TYPE>,                                        \
+        exfs::iterator::CATEGORY ## _tag                                       \
+    >));
+
+    // CHECK_CATEGORY(Output_Iterator, );
+    // CHECK_CATEGORY(Input_Iterator, input_iterator);
+    CHECK_CATEGORY(Forward_Iterator, forward_iterator);
+    CHECK_CATEGORY(Bidirectional_Iterator, bidirectional_iterator);
+    CHECK_CATEGORY(Random_Access_Iterator, random_access_iterator);
+    // CHECK_CATEGORY(Contiguous_Iterator, contiguous_iterator);
+    CHECK_CATEGORY(Forward_Const_Iterator, forward_iterator);
+    CHECK_CATEGORY(Bidirectional_Const_Iterator, bidirectional_iterator);
+    CHECK_CATEGORY(Random_Access_Const_Iterator, random_access_iterator);
+    // CHECK_CATEGORY(Contiguous_Const_Iterator, contiguous_iterator);
+
+    #undef CHECK_CATEGORY
 }

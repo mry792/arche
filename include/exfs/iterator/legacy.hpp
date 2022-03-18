@@ -5,10 +5,16 @@
 #include <type_traits>
 
 #include "exfs/concepts.hpp"
+#include "exfs/iterator/category_tags.hpp"
 #include "exfs/iterator/traits.hpp"
 #include "exfs/utility/functions.hpp"
 
 namespace exfs::iterator {
+/**
+ * @name legacy iterator concepts
+ * @{
+ */
+
 /**
  * Describes types that can be used to identify and traverse the elements of a
  * container. This concept is the base set of requirements used by other
@@ -126,6 +132,53 @@ concept legacy_random_access_iterator =
         { i -  i } -> std::same_as<decltype(n)>;
         { i[n]   } -> std::convertible_to<iter_reference_t<I>>;
     };
+
+/**
+ * @}
+ */
+
+/**
+ * @name iterator_traits
+ * @{
+ */
+
+/**
+ * Identify the category of the iterator.
+ *
+ * This trait is an extension to the standard library.
+ *
+ * @todo Specialization to take the @c iterator_traits<Iter>::iterator_category
+ *     if @c iterator_tratis is specialized for @p Iter.
+ *
+ * @tparam Iter Iterator type in question.
+ */
+template <typename Iter>
+struct iterator_category {};
+
+template <legacy_input_iterator Iter>
+struct iterator_category<Iter> {
+    using type = input_iterator_tag;
+};
+
+// Cannot check for a legacy_output_iterator without an extra argument.
+
+template <legacy_forward_iterator Iter>
+struct iterator_category<Iter> {
+    using type = forward_iterator_tag;
+};
+
+template <legacy_bidirectional_iterator Iter>
+struct iterator_category<Iter> {
+    using type = bidirectional_iterator_tag;
+};
+
+template <legacy_random_access_iterator Iter>
+struct iterator_category<Iter> {
+    using type = random_access_iterator_tag;
+};
+
+template <typename Iter>
+using iterator_category_t = typename iterator_category<Iter>::type;
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_LEGACY_HPP_
