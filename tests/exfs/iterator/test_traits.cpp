@@ -278,13 +278,19 @@ using Alias_Test_Types = std::tuple<
     int volatile* const,
     int const volatile* const,
 
+    int* const&,
+    int const*&,
+
     typename std::vector<int>::iterator,
     typename std::vector<int>::const_iterator,
     typename std::list<int>::iterator,
     typename std::list<int>::const_iterator,
     typename std::map<int, int>::iterator,
     typename std::map<int, int>::const_iterator,
-    std::istream_iterator<int>
+    std::istream_iterator<int>,
+
+    typename std::vector<int>::iterator&,
+    typename std::list<int>::iterator const&
 >;
 
 #define CHECK_ALIAS_PARITY(ALIAS_NAME, MODEL)                                  \
@@ -304,6 +310,86 @@ TEMPLATE_LIST_TEST_CASE(
     Alias_Test_Types
 ) {
     CHECK_ALIAS_PARITY(iter_reference_t, TestType);
+}
+
+struct Member_Ref {
+    struct reference;
+};
+
+struct Member_Ref_Derefable {
+    struct reference;
+    struct other_ref;
+
+    other_ref& operator * ();
+};
+
+struct Derefable {
+    struct other_ref;
+
+    other_ref& operator * ();
+};
+
+TEST_CASE(
+    "exfs::iterator::iter_reference_t - focus tests",
+    "[unit][iterator]"
+) {
+    using exfs::iterator::iter_reference_t;
+
+    CHECK(std::is_same_v<
+        iter_reference_t<Member_Ref>,
+        Member_Ref::reference
+    >);
+
+    CHECK(std::is_same_v<
+        iter_reference_t<Member_Ref_Derefable>,
+        Member_Ref_Derefable::reference
+    >);
+
+    CHECK(std::is_same_v<
+        iter_reference_t<Derefable>,
+        Derefable::other_ref&
+    >);
+}
+
+TEST_CASE(
+    "exfs::iterator::iter_pointer_t",
+    "[unit][iterator]"
+) {
+    using exfs::iterator::iter_pointer_t;
+
+    #define CHECK_ITER_PTR(QUERY_TYPE, EXPECTED_TYPE)                          \
+    CHECK((std::is_same_v<iter_pointer_t<QUERY_TYPE>, EXPECTED_TYPE>));
+
+    CHECK_ITER_PTR(int*, int*);
+    CHECK_ITER_PTR(int const*, int const*);
+    CHECK_ITER_PTR(int volatile*, int volatile*);
+    CHECK_ITER_PTR(int const volatile*, int const volatile*);
+    CHECK_ITER_PTR(int* const, int*);
+    CHECK_ITER_PTR(int const* const, int const*);
+    CHECK_ITER_PTR(int volatile* const, int volatile*);
+    CHECK_ITER_PTR(int const volatile* const, int const volatile*);
+
+    CHECK_ITER_PTR(int const*&, int const*);
+
+    CHECK_ITER_PTR(typename std::vector<int>::iterator, int*);
+    CHECK_ITER_PTR(typename std::vector<int>::const_iterator, int const*);
+    CHECK_ITER_PTR(typename std::list<int>::iterator, int*);
+    CHECK_ITER_PTR(typename std::list<int>::const_iterator, int const*);
+    CHECK((std::is_same_v<
+        iter_pointer_t<typename std::map<int, int>::iterator>,
+        std::pair<int const, int>*
+    >));
+    CHECK((std::is_same_v<
+        iter_pointer_t<typename std::map<int, int>::const_iterator>,
+        std::pair<int const, int> const*
+    >));
+    CHECK_ITER_PTR(std::istream_iterator<int>, int const*);
+
+    CHECK_ITER_PTR(std::unique_ptr<int>, int*);
+    CHECK_ITER_PTR(std::unique_ptr<int> const, int*);
+    CHECK_ITER_PTR(std::unique_ptr<int const>, int const*);
+
+    #undef CHECK_ITER_PTR
 }
 
 TEMPLATE_LIST_TEST_CASE(

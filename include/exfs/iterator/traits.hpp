@@ -160,21 +160,125 @@ struct indirectly_readable_traits<T> {
  * @{
  */
 
+/**
+ * Computes the value type of @p T.
+ *
+ * @todo Add alternative implementation for specializations of @c
+ * iterator_traits.
+ *
+ * @tparam T The iterator type in question.
+ */
 template <typename T>
 using iter_value_t = typename indirectly_readable_traits<
     std::remove_cvref_t<T>>::value_type;
 
-template <dereferenceable T>
-using iter_reference_t = decltype(*exfs::declval<T&>());
+/**
+ * Computes the reference type of @p T.
+ *
+ * The alias template @c iter_reference_t<T> is equal to the following:
+ *   - if @c T::reference exists and names a type, then @c T::reference
+ *     (note that this is a deviation from the standard library specification)
+ *   - else if T is dereferenceable, this is @c decltype(*declval<T&>())
+ *   - else @c iter_reference_t is undefined
+ *
+ * @tparam T The iterator type in question.
+ */
+template <typename T>
+struct iter_reference {};
 
+template <typename T>
+requires (requires { typename T::reference; })
+struct iter_reference<T> {
+    using type = typename T::reference;
+};
+
+template <dereferenceable T>
+requires (not requires { typename T::reference; })
+struct iter_reference<T> {
+    using type = decltype(*exfs::declval<T&>());
+};
+
+template <typename T>
+requires (requires { typename iter_reference<T>::type; })
+using iter_reference_t = typename iter_reference<T>::type;
+
+/**
+ * Computes the pointer type of @p T.
+ *
+ * This is not part of the official C++ standard library but something like it
+ * is used in the implementation of @c iterator_traits in some other
+ * implementations.
+ *
+ * The alias template @c iter_pointer_t<T> is equal to the following:
+ *   - if @p T is a pointer, then @p T
+ *   - else if @c T::pointer exists and names a type, then @c T::pointer
+ *   - else if @c t.operator->() is defined, then it @c iter_pointer_t<T> is the
+ *     result type of that operator
+ *   - else @c iter_pointer_t<T> is undefined
+ *
+ * @note The trait alias @c iter_pointer_t is transparent to const/volatile and
+ *     reference qualifiers.
+ *
+ * @tparam T The iterator type in question
+ */
+template <typename T>
+struct iter_pointer {};
+
+template <typename T>
+struct iter_pointer<T*> {
+    using type = T*;
+};
+
+template <typename T>
+requires (requires { typename T::pointer; })
+struct iter_pointer<T> {
+    using type = typename T::pointer;
+};
+
+template <typename T>
+requires (
+    not requires { typename T::pointer; } and
+    requires {
+        exfs::declval<T&>().operator->();
+    }
+)
+struct iter_pointer<T> {
+    using type = decltype(exfs::declval<T&>().operator->());
+};
+
+template <typename T>
+using iter_pointer_t = typename iter_pointer<std::remove_cvref_t<T>>::type;
+
+/**
+ * Computes the difference type of @p T.
+ *
+ * @todo Add alternative implementation for specializations of @c
+ * iterator_traits.
+ *
+ * @tparam T The iterator type in question.
+ */
 template <typename T>
 using iter_difference_t = typename incrementable_traits<
     std::remove_cvref_t<T>>::difference_type;
 
+/**
+ * Computes the rvalue reference type of @p T.
+ *
+ * @tparam T The iterator type in question.
+ */
 template <dereferenceable T>
+requires (requires { iter_move(exfs::declval<T&>()); })
 using iter_rvalue_reference_t =
     decltype(iter_move(exfs::declval<T&>()));
 
+/**
+ * Computes the common reference type of @p T.
+ *
+ * This is the common reference type between its reference type and an lvalue
+ * reference to its value type.
+ *
+ * @tparam T The iterator type in question.
+ */
 template <typename T>
 using iter_common_reference_t = std::common_reference_t<
     iter_reference_t<T>,
