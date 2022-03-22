@@ -8,6 +8,72 @@
 
 #include <catch2/catch.hpp>
 
+struct Iter_Model {
+    int const& operator * () const;
+    Iter_Model& operator ++ ();
+    Iter_Model operator ++ (int);
+};
+
+// TODO: Define Input_Iter_Model such that it is not also a forward iter.
+template <typename Derived>
+struct Input_Iter_ {
+    using difference_type = std::ptrdiff_t;
+    using value_type = int;
+    using reference = value_type const&;
+
+    // Input_Iter_ (Input_Iter_ const&) = delete;
+
+    reference operator * () const;
+    Derived& operator ++ ();
+    Derived operator ++ (int);
+
+    bool operator == (Derived const&) const;
+    bool operator != (Derived const&) const;
+};
+struct Input_Iter_Model : Input_Iter_<Input_Iter_Model> {};
+
+template <typename Derived>
+struct Fwd_ : Input_Iter_<Derived> {
+    using Parent_ = Input_Iter_<Derived>;
+    using typename Parent_::value_type;
+    using reference = value_type&;
+
+    // Fwd_ (Fwd_ const&);
+
+    reference operator * ();
+};
+struct Forward_Iter_Model : Fwd_<Forward_Iter_Model> {};
+
+template <typename Derived>
+struct Bidir_ : Fwd_<Derived> {
+    Derived& operator -- ();
+    Derived operator -- (int);
+};
+struct Bidirectional_Iter_Model : Bidir_<Bidirectional_Iter_Model> {};
+
+template <typename Derived>
+struct Rand_ : Bidir_<Derived> {
+    using Parent_ = Bidir_<Derived>;
+    using typename Parent_::difference_type;
+    using typename Parent_::reference;
+
+    Derived& operator += (difference_type n);
+    Derived& operator -= (difference_type n);
+
+    friend bool operator <  (Derived const& a, Derived const& b) { return true; }
+    friend bool operator <= (Derived const& a, Derived const& b) { return true; }
+    friend bool operator >  (Derived const& a, Derived const& b) { return true; }
+    friend bool operator >= (Derived const& a, Derived const& b) { return true; }
+
+    friend Derived operator + (Derived const& iter, difference_type n) { return iter; }
+    friend Derived operator + (difference_type n, Derived const& iter) { return iter; }
+    friend Derived operator - (Derived const& iter, difference_type n) { return iter; }
+    friend difference_type operator - (Derived const& i, Derived const& j) { return 0; }
+
+    reference operator [] (difference_type n);
+};
+struct Random_Access_Iter_Model : Rand_<Random_Access_Iter_Model> {};
+
 struct Basic_Iterator {
     int operator * ();
     Basic_Iterator& operator ++ ();
@@ -37,6 +103,12 @@ TEST_CASE(
 ) {
     using exfs::iterator::legacy_iterator;
 
+    CHECK(legacy_iterator<Iter_Model>);
+    CHECK(legacy_iterator<Input_Iter_Model>);
+    CHECK(legacy_iterator<Forward_Iter_Model>);
+    CHECK(legacy_iterator<Bidirectional_Iter_Model>);
+    CHECK(legacy_iterator<Random_Access_Iter_Model>);
+
     CHECK(not legacy_iterator<int>);
     CHECK(legacy_iterator<Basic_Iterator>);
     CHECK(legacy_iterator<Output_Iterator>);
@@ -58,6 +130,12 @@ TEST_CASE(
     "[unit][iterator]"
 ) {
     using exfs::iterator::legacy_input_iterator;
+
+    CHECK(not legacy_input_iterator<Iter_Model>);
+    CHECK(legacy_input_iterator<Input_Iter_Model>);
+    CHECK(legacy_input_iterator<Forward_Iter_Model>);
+    CHECK(legacy_input_iterator<Bidirectional_Iter_Model>);
+    CHECK(legacy_input_iterator<Random_Access_Iter_Model>);
 
     CHECK(not legacy_input_iterator<int>);
     CHECK(not legacy_input_iterator<Basic_Iterator>);
@@ -81,6 +159,12 @@ TEST_CASE(
 ) {
     using exfs::iterator::legacy_output_iterator;
 
+    CHECK(not legacy_output_iterator<Iter_Model, int>);
+    CHECK(not legacy_output_iterator<Input_Iter_Model, int>);
+    CHECK(legacy_output_iterator<Forward_Iter_Model, int>);
+    CHECK(legacy_output_iterator<Bidirectional_Iter_Model, int>);
+    CHECK(legacy_output_iterator<Random_Access_Iter_Model, int>);
+
     CHECK(not legacy_output_iterator<int, int>);
     CHECK(not legacy_output_iterator<Basic_Iterator, int>);
     CHECK(legacy_output_iterator<Output_Iterator, int>);
@@ -103,6 +187,13 @@ TEST_CASE(
     "[unit][iterator]"
 ) {
     using exfs::iterator::legacy_forward_iterator;
+
+    CHECK(not legacy_forward_iterator<Iter_Model>);
+    // TODO: Define Input_Iter_Model such that it is not also a forward iter.
+    // CHECK(not legacy_forward_iterator<Input_Iter_Model>);
+    CHECK(legacy_forward_iterator<Forward_Iter_Model>);
+    CHECK(legacy_forward_iterator<Bidirectional_Iter_Model>);
+    CHECK(legacy_forward_iterator<Random_Access_Iter_Model>);
 
     // NOTE that std::istream_iterator fits all the requirements of
     // legacy_forward_iterator except the "multipass guarantee" which is not
@@ -129,6 +220,12 @@ TEST_CASE(
 ) {
     using exfs::iterator::legacy_bidirectional_iterator;
 
+    CHECK(not legacy_bidirectional_iterator<Iter_Model>);
+    CHECK(not legacy_bidirectional_iterator<Input_Iter_Model>);
+    CHECK(not legacy_bidirectional_iterator<Forward_Iter_Model>);
+    CHECK(legacy_bidirectional_iterator<Bidirectional_Iter_Model>);
+    CHECK(legacy_bidirectional_iterator<Random_Access_Iter_Model>);
+
     CHECK(not legacy_bidirectional_iterator<int>);
     CHECK(not legacy_bidirectional_iterator<Basic_Iterator>);
     CHECK(not legacy_bidirectional_iterator<Output_Iterator>);
@@ -150,6 +247,12 @@ TEST_CASE(
     "[unit][iterator]"
 ) {
     using exfs::iterator::legacy_random_access_iterator;
+
+    CHECK(not legacy_random_access_iterator<Iter_Model>);
+    CHECK(not legacy_random_access_iterator<Input_Iter_Model>);
+    CHECK(not legacy_random_access_iterator<Forward_Iter_Model>);
+    CHECK(not legacy_random_access_iterator<Bidirectional_Iter_Model>);
+    CHECK(legacy_random_access_iterator<Random_Access_Iter_Model>);
 
     CHECK(not legacy_random_access_iterator<int>);
     CHECK(not legacy_random_access_iterator<Basic_Iterator>);
