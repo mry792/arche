@@ -183,4 +183,17 @@ TEMPLATE_LIST_TEST_CASE(
         exfs::iterator::input_iterator<TestType>);
 }
 
+///
+/// concept output_iterator
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::output_iterator",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK(std::output_iterator<TestType, int> ==
+        exfs::iterator::output_iterator<TestType, int>);
+}
+
 #undef CHECK_CONCEPT_PARITY

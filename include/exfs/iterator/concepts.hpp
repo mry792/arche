@@ -237,6 +237,19 @@ concept input_iterator =
     indirectly_readable<I> and
     requires { typename __detail::__iter_concept<I>; } and
     std::derived_from<__detail::__iter_concept<I>, input_iterator_tag>;
+
+/**
+ * The @c output_iterator concept refines @c input_or_output_iterator, adding
+ * the requirement that it can be used to write values of type and value
+ * category encoded by @p T. Note that @c equality_comparable is not required.
+ */
+template <typename I, typename T>
+concept output_iterator =
+    input_or_output_iterator<I> and
+    indirectly_writable<I, T> and
+    requires (I i, T&& t) {
+        *i++ = exfs::forward<T>(t);  // not required to be equality-preserving
+    };
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_CONCEPTS_HPP_
