@@ -235,4 +235,17 @@ TEMPLATE_LIST_TEST_CASE(
         exfs::iterator::random_access_iterator<TestType>);
 }
 
+///
+/// concept contiguous_iterator
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::contiguous_iterator",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK(std::contiguous_iterator<TestType> ==
+        exfs::iterator::contiguous_iterator<TestType>);
+}
+
 #undef CHECK_CONCEPT_PARITY

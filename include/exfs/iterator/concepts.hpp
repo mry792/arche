@@ -4,6 +4,10 @@
 #include <concepts>
 #include <type_traits>
 
+#if __STDC_HOSTED__
+#include <iterator>
+#endif  // __STDC_HOSTED__
+
 #include "exfs/concepts.hpp"
 #include "exfs/iterator/category_tags.hpp"
 #include "exfs/iterator/legacy.hpp"
@@ -185,32 +189,53 @@ concept sized_sentinel_for =
     };
 
 namespace __detail {
+#if __STDC_HOSTED__
+template <typename I>
+constexpr bool __default_iterator_traits = std::is_base_of_v<
+    std::__detail::__iter_traits<I>,
+    std::iterator_traits<I>
+>;
+#else  // __STDC_HOSTED__
+template <typename I>
+constexpr bool __default_iterator_traits = std::is_base_of_v<
+    __iter_traits<I>,
+    iterator_traits<I>
+>;
+#endif  // __STDC_HOSTED__
+
+template <typename I>
+using __iter_concept_traits = std::conditional_t<
+    __default_iterator_traits<I>,
+    iterator_traits<I>,
+    I
+>;
+
 template <typename I>
 struct __iter_concept_impl;
 
 // ITER_CONCEPT(I) is ITER_TRAITS(I)::iterator_concept if that is valid.
 template <typename I>
-requires requires { typename iterator_traits<I>::iterator_concept; }
+requires requires { typename __iter_concept_traits<I>::iterator_concept; }
 struct __iter_concept_impl<I> {
-    using type = typename iterator_traits<I>::iterator_concept;
+    using type = typename __iter_concept_traits<I>::iterator_concept;
 };
 
 // Else, ITER_TRAITS(I)::iterator_category if that is valid.
 template <typename I>
 requires (
-    not requires { typename iterator_traits<I>::iterator_concept; } and
-    requires { typename iterator_traits<I>::iterator_category; }
+    not requires { typename __iter_concept_traits<I>::iterator_concept; } and
+    requires { typename __iter_concept_traits<I>::iterator_category; }
 )
 struct __iter_concept_impl<I> {
-    using type = typename iterator_traits<I>::iterator_category;
+    using type = typename __iter_concept_traits<I>::iterator_category;
 };
 
 // Else, random_access_tag if iterator_traits<I> is not specialized.
 template <typename I>
 requires (
-    not requires { typename iterator_traits<I>::iterator_concept; } and
-    not requires { typename iterator_traits<I>::iterator_category; } and
-    std::is_base_of_v<__iter_traits<I>, iterator_traits<I>>
+    not requires { typename __iter_concept_traits<I>::iterator_concept; } and
+    not requires { typename __iter_concept_traits<I>::iterator_category; } and
+    __default_iterator_traits<I>
 )
 struct __iter_concept_impl<I> {
     using type = random_access_iterator_tag;
@@ -302,6 +327,25 @@ concept random_access_iterator =
         { i -= n } -> std::same_as<I&>;
         { j -  n } -> std::same_as<I>;
         { j[n]   } -> std::same_as<iter_reference_t<I>>;
+    };
+
+/**
+ * The @c contiguous_iterator_concept refines @c random_access_iterator by
+ * providing a guarantee the denoted elements are stored contiguously in the
+ * memory.
+ */
+template <typename I>
+concept contiguous_iterator =
+    random_access_iterator<I> and
+    std::derived_from<__detail::__iter_concept<I>, contiguous_iterator_tag> and
+    std::is_lvalue_reference_v<iter_reference_t<I>> and
+    std::same_as<
+        iter_value_t<I>,
+        std::remove_cvref_t<iter_reference_t<I>>
+    > and
+    requires (I const& i) {
+        { std::to_address(i) } ->
+            std::same_as<std::add_pointer_t<iter_reference_t<I>>>;
     };
 }  // exfs::iterator
 
