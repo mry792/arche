@@ -5,6 +5,8 @@
 #include <type_traits>
 
 #include "exfs/concepts.hpp"
+#include "exfs/iterator/category_tags.hpp"
+#include "exfs/iterator/legacy.hpp"
 #include "exfs/iterator/traits.hpp"
 #include "exfs/utility/functions.hpp"
 
@@ -181,6 +183,60 @@ concept sized_sentinel_for =
         { s - i } -> std::same_as<iter_difference_t<I>>;
         { i - s } -> std::same_as<iter_difference_t<I>>;
     };
+
+namespace __detail {
+template <typename I>
+struct __iter_concept_impl;
+
+// ITER_CONCEPT(I) is ITER_TRAITS(I)::iterator_concept if that is valid.
+template <typename I>
+requires requires { typename iterator_traits<I>::iterator_concept; }
+struct __iter_concept_impl<I> {
+    using type = typename iterator_traits<I>::iterator_concept;
+};
+
+// Else, ITER_TRAITS(I)::iterator_category if that is valid.
+template <typename I>
+requires (
+    not requires { typename iterator_traits<I>::iterator_concept; } and
+    requires { typename iterator_traits<I>::iterator_category; }
+)
+struct __iter_concept_impl<I> {
+    using type = typename iterator_traits<I>::iterator_category;
+};
+
+// Else, random_access_tag if iterator_traits<I> is not specialized.
+template <typename I>
+requires (
+    not requires { typename iterator_traits<I>::iterator_concept; } and
+    not requires { typename iterator_traits<I>::iterator_category; } and
+    std::is_base_of_v<__iter_traits<I>, iterator_traits<I>>
+)
+struct __iter_concept_impl<I> {
+    using type = random_access_iterator_tag;
+};
+
+// Else, there is no ITER_CONCEPT(I) type.
+template <typename I>
+struct __iter_concept_impl {};
+
+// ITER_CONCEPT
+template <typename I>
+using __iter_concept = typename __iter_concept_impl<I>::type;
+}  // namespace __detail
+
+/**
+ * The @c input_iterator concept is a refinement of @c input_or_output_iterator,
+ * adding the requirement that the referenced values can be read
+ * (via @c indirectly_readable) and the requirement that the iterator concept
+ * tag be present.
+ */
+template <typename I>
+concept input_iterator =
+    input_or_output_iterator<I> and
+    indirectly_readable<I> and
+    requires { typename __detail::__iter_concept<I>; } and
+    std::derived_from<__detail::__iter_concept<I>, input_iterator_tag>;
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_CONCEPTS_HPP_
