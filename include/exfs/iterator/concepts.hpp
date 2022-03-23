@@ -263,6 +263,22 @@ concept forward_iterator =
     std::derived_from<__detail::__iter_concept<I>, forward_iterator_tag> and
     incrementable<I> and
     sentinel_for<I, I>;
+
+/**
+ * The concept @c bidirectional_iterator refines @c forward_iterator by adding
+ * the ability to move an iterator backward.
+ */
+template <typename I>
+concept bidirectional_iterator =
+    forward_iterator<I> and
+    std::derived_from<
+        __detail::__iter_concept<I>,
+        bidirectional_iterator_tag
+    > and
+    requires (I i) {
+        { --i } -> std::same_as<I&>;
+        { i-- } -> std::same_as<I>;
+    };
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_CONCEPTS_HPP_

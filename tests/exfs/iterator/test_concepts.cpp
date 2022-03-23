@@ -209,4 +209,17 @@ TEMPLATE_LIST_TEST_CASE(
         exfs::iterator::forward_iterator<TestType>);
 }
 
+///
+/// concept bidirectional_iterator
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::bidirectional_iterator",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK(std::bidirectional_iterator<TestType> ==
+        exfs::iterator::bidirectional_iterator<TestType>);
+}
+
 #undef CHECK_CONCEPT_PARITY
