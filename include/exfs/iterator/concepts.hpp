@@ -250,6 +250,19 @@ concept output_iterator =
     requires (I i, T&& t) {
         *i++ = exfs::forward<T>(t);  // not required to be equality-preserving
     };
+
+/**
+ * This concept refines @c input_iterator by requiring that @p I also model @c
+ * incrementable (thereby making it suitable for multi-pass algorithms), and
+ * guaranteeing that two iterators to the same range can be compared against
+ * each other.
+ */
+template <typename I>
+concept forward_iterator =
+    input_iterator<I> and
+    std::derived_from<__detail::__iter_concept<I>, forward_iterator_tag> and
+    incrementable<I> and
+    sentinel_for<I, I>;
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_CONCEPTS_HPP_

@@ -148,7 +148,7 @@ concept legacy_random_access_iterator =
  * This trait is an extension to the standard library.
  *
  * @todo Specialization to take the @c iterator_traits<Iter>::iterator_category
- *     if @c iterator_tratis is specialized for @p Iter.
+ *     if @c iterator_trait is specialized for @p Iter.
  *
  * @tparam Iter Iterator type in question.
  */
