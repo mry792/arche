@@ -279,6 +279,30 @@ concept bidirectional_iterator =
         { --i } -> std::same_as<I&>;
         { i-- } -> std::same_as<I>;
     };
+
+/**
+ * The concept @c random_access_Iterator refines @c bidirectional_iterator by
+ * adding support for constant time advancement with the +=, +, -=, and -
+ * operators, constant time computation of distance with -, and array notation
+ * with subscripting.
+ */
+template <typename I>
+concept random_access_iterator =
+    bidirectional_iterator<I> and
+    std::derived_from<
+        __detail::__iter_concept<I>,
+        random_access_iterator_tag
+    > and
+    std::totally_ordered<I> and
+    sized_sentinel_for<I, I> and
+    requires (I i, I const j, iter_difference_t<I> const n) {
+        { i += n } -> std::same_as<I&>;
+        { j +  n } -> std::same_as<I>;
+        { n +  j } -> std::same_as<I>;
+        { i -= n } -> std::same_as<I&>;
+        { j -  n } -> std::same_as<I>;
+        { j[n]   } -> std::same_as<iter_reference_t<I>>;
+    };
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_CONCEPTS_HPP_
