@@ -1,8 +1,10 @@
 #include "exfs/iterator/operations.hpp"
 
 #include <forward_list>
+#include <initializer_list>
 #include <list>
 #include <memory>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -95,6 +97,57 @@ TEMPLATE_TEST_CASE (
             std::forward_list<int>{{0, 1, 2, 3, 4, 5}},
             RangeGenerator(0, 3)
         );
+    }
+}
+
+MAKE_WRAPPER(std_distance, std::distance);
+MAKE_WRAPPER(exfs_distance, exfs::iterator::distance);
+
+TEMPLATE_TEST_CASE (
+    "exfs::iterator::distance",
+    "[unit][std-parity][iterator]",
+    std_distance,
+    exfs_distance
+) {
+    TestType distance;
+
+    using Table_Row = std::tuple<int, int>;
+    using Table = std::initializer_list<Table_Row>;
+
+    auto do_test = [&] (auto container, Table data) {
+        auto [min_idx, max_idx] = GENERATE_COPY(table<int, int>(data));
+        auto const min_str = std::to_string(min_idx);
+        auto const max_str = std::to_string(max_idx);
+
+        AND_GIVEN (
+            "iterators into the " + min_str + " and " + max_str + " elements"
+        ) {
+            using exfs::iterator::advance;
+            auto min_iter = container.begin();
+            auto max_iter = container.begin();
+            advance(min_iter, min_idx);
+            advance(max_iter, max_idx);
+
+            WHEN ("we call distance() on the iterators") {
+                auto const result = distance(min_iter, max_iter);
+
+                THEN ("we get the expected value") {
+                    CHECK(result == *max_iter - *min_iter);
+                }
+            }
+        }
+    };
+
+    GIVEN ("a random access container (vector) of 6 elements") {
+        do_test(std::vector<int>{{0, 1, 2, 3, 4, 5}}, {{0, 5}, {2, 4}, {3, 1}});
+    }
+
+    GIVEN ("a bidirectional container (list) of 6 elements") {
+        do_test(std::list<int>{{0, 1, 2, 3, 4, 5}}, {{0, 5}, {2, 4}});
+    }
+
+    GIVEN ("a forward container (forward_list) of 6 elements") {
+        do_test(std::forward_list<int>{{0, 1, 2, 3, 4, 5}}, {{0, 5}, {2, 4}});
     }
 }
 
