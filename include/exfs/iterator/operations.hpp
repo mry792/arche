@@ -98,6 +98,30 @@ constexpr Iter next (
     exfs::iterator::advance(iter, distance);
     return iter;
 }
+
+/**
+ * Return the n-th predecessor of iterator @p iter.
+ *
+ * Although the expression `--c.end()` often compiles, it is not guaranteed to
+ * do so: `c.end()` is an rvalue expression, and there is no iterator
+ * requirement that specifies that decrement of an rvalue is guaranteed to
+ * work. In particular, when iterators are implemented as pointers or its @c
+ * operator-- is lvalue-ref-qualified, `--c.end()` does not compile, while
+ * `exfs::iterator::prev(c.end())` does.
+ *
+ * @param[in] iter The original iterator.
+ * @param[in] distance Number of elements to advance.
+ *
+ * @return The n-th successor of iterator @p iter.
+ */
+template <legacy_bidirectional_iterator Iter>
+constexpr Iter prev (
+    Iter iter,
+    typename incrementable_traits<Iter>::difference_type distance = 1
+) {
+    exfs::iterator::advance(iter, -distance);
+    return iter;
+}
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_OPERATIONS_HPP_

@@ -201,4 +201,47 @@ TEMPLATE_TEST_CASE (
     }
 }
 
+MAKE_WRAPPER(std_prev, std::prev);
+MAKE_WRAPPER(exfs_prev, exfs::iterator::prev);
+
+TEMPLATE_TEST_CASE (
+    "exfs::iterator::prev",
+    "[unit][std-parity][iterator]",
+    std_prev,
+    exfs_prev
+) {
+    TestType prev;
+
+    auto do_test = [&] (auto container, auto input_data) {
+        AND_GIVEN ("an iterator pointing to the 2 element") {
+            auto iter = container.begin();
+            exfs::iterator::advance(iter, 2);
+            CHECK(*iter == 2);
+
+            auto distance = GENERATE_COPY(wrap_generator(input_data));
+            auto const distance_str = std::to_string(distance);
+            int const expected_value = *iter - distance;
+            auto const value_str = std::to_string(expected_value);
+
+            WHEN ("the iterator is prev'd " + distance_str + " spaces") {
+                auto result = prev(iter, distance);
+
+                THEN ("the iterator points to the " + value_str + " element") {
+                    CHECK(*result == expected_value);
+                }
+            }
+        }
+    };
+
+    using Catch::Generators::RangeGenerator;
+
+    GIVEN ("a random access container (vector) of 6 elements") {
+        do_test(std::vector<int>{{0, 1, 2, 3, 4, 5}}, RangeGenerator(-3, 2));
+    }
+
+    GIVEN ("a bidirectional container (list) of 6 elements") {
+        do_test(std::list<int>{{0, 1, 2, 3, 4, 5}}, RangeGenerator(-3, 2));
+    }
+}
+
 #undef MAKE_WRAPPER
