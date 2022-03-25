@@ -74,6 +74,30 @@ distance (Iter first, Iter last) {
         return result;
     }
 }
+
+/**
+ * Return the n-th successor of iterator @p iter.
+ *
+ * Although the expression `++c.begin()` often compiles, it is not guaranteed to
+ * do so: `c.begin()` is an rvalue expression, and there is no @c
+ * legacy_input_iterator requirement that specifies that increment of an rvalue
+ * is guaranteed to work. In particular, when iterators are implemented as
+ * pointers or its @c operator++ is lvalue-ref-qualified, `++c.begin()` does
+ * not compile, while `exfs::iterator::next(c.begin())` does.
+ *
+ * @param[in] iter The original iterator.
+ * @param[in] distance Number of elements to advance.
+ *
+ * @return The n-th successor of iterator @p iter.
+ */
+template <legacy_input_iterator Iter>
+constexpr Iter next (
+    Iter iter,
+    typename incrementable_traits<Iter>::difference_type distance = 1
+) {
+    exfs::iterator::advance(iter, distance);
+    return iter;
+}
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_OPERATIONS_HPP_
