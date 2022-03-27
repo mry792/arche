@@ -1,11 +1,13 @@
 #ifndef EXFS_ITERATOR_REVERSE_ITERATOR_HPP_
 #define EXFS_ITERATOR_REVERSE_ITERATOR_HPP_
 
+#include <concepts>
 #include <type_traits>
 
 #include "exfs/iterator/category_tags.hpp"
 #include "exfs/iterator/concepts.hpp"
 #include "exfs/iterator/traits.hpp"
+#include "exfs/utility/functions.hpp"
 
 namespace exfs::iterator {
 /**
@@ -44,6 +46,76 @@ class reverse_iterator {
     using difference_type   = iter_difference_t<Iter>;
     using pointer           = typename iterator_traits<Iter>::pointer;
     using reference         = iter_reference_t<Iter>;
+
+    /**
+     * Default constructor.
+     *
+     * The underlying iterator is value-initialized. Operations on the resulting
+     * iterator have defined behavior if and only if the corresponding
+     * operations on a value-initialized @p Iter also have defined behavior.
+     */
+    constexpr reverse_iterator () : base_{} {}
+
+    /**
+     * Construct a @c reverse_iterator wrapping @p iter.
+     *
+     * @param[in] iter The underlying iterator to adapt.
+     */
+    constexpr explicit reverse_iterator (iterator_type iter)
+          : base_{exfs::move(iter)} {}
+
+    /**
+     * Construct a @c reverse_iterator wrapping a converted copy of @p other.
+     *
+     * This overload participates in overload resolution only if @p Other is not
+     * the same type as @p Iter and `std::convertible_to<Other const&, Iter>`
+     * is modeled.
+     *
+     * @param[in] other Iterator to convert and adapt.
+     */
+    template <typename Other>
+    requires (
+        not std::is_same_v<Other, Iter> and
+        std::convertible_to<Other const&, Iter>
+    )
+    constexpr reverse_iterator (reverse_iterator<Other> const& other)
+          : base_{other.base()} {}
+
+    /**
+     * Construct a @c reverse_iterator wrapping a converted move of @p other.
+     *
+     * This overload participates in overload resolution only if @p Other is not
+     * the same type as @p Iter and `std::convertible_to<Other&&, Iter>`
+     * is modeled.
+     *
+     * @param[in] other Iterator to convert and adapt.
+     */
+    template <typename Other>
+    requires (
+        not std::is_same_v<Other, Iter> and
+        std::convertible_to<Other&&, Iter>
+    )
+    constexpr reverse_iterator (reverse_iterator<Other>&& other)
+          : base_{exfs::move(other.base())} {}
+
+    /**
+     * Access the underlying base iterator.
+     *
+     * This should be the same iterator that this was constructed with. That is
+     * `reverse_iterator(it).base() == it`.
+     *
+     * The base iterator refers to the element that is next (from the
+     * `reverse_iterator::iterator_type` perspective) to the element the @c
+     * reverse_iterator is currently pointing to. That is `&*(rit.base() - 1)
+     * == &*rit`.
+     *
+     * @except May throw implementation-defined exceptions.
+     * @return The underlying iterator.
+     */
+    constexpr iterator_type base () const { return base_; }
+
+  private:
+    iterator_type base_;
 };
 }  // exfs::iterator
 

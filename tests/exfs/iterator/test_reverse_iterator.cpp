@@ -1,7 +1,9 @@
 #include "exfs/iterator/reverse_iterator.hpp"
 
 #include <iterator>
+#include <list>
 #include <type_traits>
+#include <vector>
 
 #include <catch2/catch.hpp>
 
@@ -102,5 +104,109 @@ TEMPLATE_TEST_CASE (
         using Iter_Tag = exfs::iterator::bidirectional_iterator_tag;
 
         do_test(tag_c<Iter_Model>, tag_c<Iter_Tag>, tag_c<void>);
+    }
+}
+
+TEMPLATE_TEST_CASE (
+    "exfs::iterator::reverse_iterator - constructors",
+    "[unit][std-parity][iterator]",
+    Std_Reverse_Iterator,
+    Exfs_Reverse_Iterator
+) {
+    auto do_test = [] (auto base_iter, auto const_base_iter_tag) {
+        using Base_Iterator = decltype(base_iter);
+        using Reverse_Iterator = typename TestType::type<Base_Iterator>;
+
+        WHEN ("default construct a reverse_iterator") {
+            Reverse_Iterator rev_iter{};
+
+            THEN ("the `base` property is also default constructed") {
+                CHECK(rev_iter.base() == Base_Iterator{});
+                CHECK(rev_iter.base() != base_iter);
+            }
+        }
+
+        WHEN ("construct a reverse_iterator from the base iterator") {
+            Reverse_Iterator rev_iter{base_iter};
+
+            THEN ("the `base` property is equal to the original base iterator") {
+                CHECK(rev_iter.base() != Base_Iterator{});
+                CHECK(rev_iter.base() == base_iter);
+            }
+        }
+
+        AND_GIVEN ("an existing reverse_iterator") {
+            Reverse_Iterator rev_iter{base_iter};
+
+            WHEN ("copy construct the reverse_iterator") {
+                Reverse_Iterator new_rev_iter{rev_iter};
+
+                THEN ("the `base` properties are the same") {
+                    CHECK(new_rev_iter.base() == rev_iter.base());
+                }
+            }
+
+            WHEN ("move construct the reverse_iterator") {
+                Reverse_Iterator new_rev_iter{exfs::move(rev_iter)};
+
+                THEN ("the `base` property is the same as the original base") {
+                    CHECK(new_rev_iter.base() == base_iter);
+                }
+            }
+
+            AND_GIVEN ("const iterator and const reverse iterator types") {
+                using Const_Base_Iterator = decltype(const_base_iter_tag)::type;
+                using Const_Reverse_Iterator =
+                    typename TestType::type<Const_Base_Iterator>;
+
+                static_assert(std::is_constructible_v<
+                    Const_Base_Iterator,
+                    Base_Iterator
+                >);
+                static_assert(not std::is_same_v<
+                    std::remove_cvref_t<Const_Base_Iterator>,
+                    std::remove_cvref_t<Base_Iterator>
+                >);
+
+                WHEN ("copy construct a const rev iter from a rev iter") {
+                    Const_Reverse_Iterator const_rev_iter{rev_iter};
+
+                    THEN ("the `base` property is the same") {
+                        CHECK(const_rev_iter.base() == rev_iter.base());
+                    }
+                }
+
+                WHEN ("move construct a const rev iter from a rev iter") {
+                    Const_Reverse_Iterator const_rev_iter{exfs::move(rev_iter)};
+
+                    THEN ("the `base` property is the same as the original base") {
+                        CHECK(const_rev_iter.base() == base_iter);
+                    }
+                }
+            }
+        }
+    };
+
+    using exfs::iterator::models::Value;
+
+    GIVEN ("a raw pointer iterator") {
+        Value value;
+        Value* base_iter = &value;
+
+        do_test(base_iter, tag_c<Value const*>);
+    }
+
+    GIVEN ("a random-access iterator") {
+        std::vector<Value> vect{3};
+
+        do_test(vect.begin() + 1, tag_c<decltype(vect.cbegin())>);
+    }
+
+    GIVEN ("a bidirectional iterator") {
+        std::list<Value> list;
+        list.emplace_back();
+        list.emplace_back();
+
+        do_test(list.begin(), tag_c<decltype(list.cbegin())>);
     }
 }
