@@ -170,4 +170,82 @@ TEMPLATE_LIST_TEST_CASE(
         (exfs::iterator::sized_sentinel_for<int, TestType>));
 }
 
+///
+/// concept input_iterator
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::input_iterator",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK(std::input_iterator<TestType> ==
+        exfs::iterator::input_iterator<TestType>);
+}
+
+///
+/// concept output_iterator
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::output_iterator",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK(std::output_iterator<TestType, int> ==
+        exfs::iterator::output_iterator<TestType, int>);
+}
+
+///
+/// concept forward_iterator
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::forward_iterator",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK(std::forward_iterator<TestType> ==
+        exfs::iterator::forward_iterator<TestType>);
+}
+
+///
+/// concept bidirectional_iterator
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::bidirectional_iterator",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK(std::bidirectional_iterator<TestType> ==
+        exfs::iterator::bidirectional_iterator<TestType>);
+}
+
+///
+/// concept random_access_iterator
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::random_access_iterator",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK(std::random_access_iterator<TestType> ==
+        exfs::iterator::random_access_iterator<TestType>);
+}
+
+///
+/// concept contiguous_iterator
+///
+
+TEMPLATE_LIST_TEST_CASE(
+    "exfs::iterator::contiguous_iterator",
+    "[unit][std-parity][iterator][concept]",
+    All_Test_Types
+) {
+    CHECK(std::contiguous_iterator<TestType> ==
+        exfs::iterator::contiguous_iterator<TestType>);
+}
+
 #undef CHECK_CONCEPT_PARITY

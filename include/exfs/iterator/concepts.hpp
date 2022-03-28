@@ -4,7 +4,13 @@
 #include <concepts>
 #include <type_traits>
 
+#if __STDC_HOSTED__
+#include <iterator>
+#endif  // __STDC_HOSTED__
+
 #include "exfs/concepts.hpp"
+#include "exfs/iterator/category_tags.hpp"
+#include "exfs/iterator/legacy.hpp"
 #include "exfs/iterator/traits.hpp"
 #include "exfs/utility/functions.hpp"
 
@@ -180,6 +186,166 @@ concept sized_sentinel_for =
     requires (I const& i, S const& s) {
         { s - i } -> std::same_as<iter_difference_t<I>>;
         { i - s } -> std::same_as<iter_difference_t<I>>;
+    };
+
+namespace __detail {
+#if __STDC_HOSTED__
+template <typename I>
+constexpr bool __default_iterator_traits = std::is_base_of_v<
+    std::__detail::__iter_traits<I>,
+    std::iterator_traits<I>
+>;
+#else  // __STDC_HOSTED__
+template <typename I>
+constexpr bool __default_iterator_traits = std::is_base_of_v<
+    __iter_traits<I>,
+    iterator_traits<I>
+>;
+#endif  // __STDC_HOSTED__
+
+template <typename I>
+using __iter_concept_traits = std::conditional_t<
+    __default_iterator_traits<I>,
+    iterator_traits<I>,
+    I
+>;
+
+template <typename I>
+struct __iter_concept_impl;
+
+// ITER_CONCEPT(I) is ITER_TRAITS(I)::iterator_concept if that is valid.
+template <typename I>
+requires requires { typename __iter_concept_traits<I>::iterator_concept; }
+struct __iter_concept_impl<I> {
+    using type = typename __iter_concept_traits<I>::iterator_concept;
+};
+
+// Else, ITER_TRAITS(I)::iterator_category if that is valid.
+template <typename I>
+requires (
+    not requires { typename __iter_concept_traits<I>::iterator_concept; } and
+    requires { typename __iter_concept_traits<I>::iterator_category; }
+)
+struct __iter_concept_impl<I> {
+    using type = typename __iter_concept_traits<I>::iterator_category;
+};
+
+// Else, random_access_tag if iterator_traits<I> is not specialized.
+template <typename I>
+requires (
+    not requires { typename __iter_concept_traits<I>::iterator_concept; } and
+    not requires { typename __iter_concept_traits<I>::iterator_category; } and
+    __default_iterator_traits<I>
+)
+struct __iter_concept_impl<I> {
+    using type = random_access_iterator_tag;
+};
+
+// Else, there is no ITER_CONCEPT(I) type.
+template <typename I>
+struct __iter_concept_impl {};
+
+// ITER_CONCEPT
+template <typename I>
+using __iter_concept = typename __iter_concept_impl<I>::type;
+}  // namespace __detail
+
+/**
+ * The @c input_iterator concept is a refinement of @c input_or_output_iterator,
+ * adding the requirement that the referenced values can be read
+ * (via @c indirectly_readable) and the requirement that the iterator concept
+ * tag be present.
+ */
+template <typename I>
+concept input_iterator =
+    input_or_output_iterator<I> and
+    indirectly_readable<I> and
+    requires { typename __detail::__iter_concept<I>; } and
+    std::derived_from<__detail::__iter_concept<I>, input_iterator_tag>;
+
+/**
+ * The @c output_iterator concept refines @c input_or_output_iterator, adding
+ * the requirement that it can be used to write values of type and value
+ * category encoded by @p T. Note that @c equality_comparable is not required.
+ */
+template <typename I, typename T>
+concept output_iterator =
+    input_or_output_iterator<I> and
+    indirectly_writable<I, T> and
+    requires (I i, T&& t) {
+        *i++ = exfs::forward<T>(t);  // not required to be equality-preserving
+    };
+
+/**
+ * This concept refines @c input_iterator by requiring that @p I also model @c
+ * incrementable (thereby making it suitable for multi-pass algorithms), and
+ * guaranteeing that two iterators to the same range can be compared against
+ * each other.
+ */
+template <typename I>
+concept forward_iterator =
+    input_iterator<I> and
+    std::derived_from<__detail::__iter_concept<I>, forward_iterator_tag> and
+    incrementable<I> and
+    sentinel_for<I, I>;
+
+/**
+ * The concept @c bidirectional_iterator refines @c forward_iterator by adding
+ * the ability to move an iterator backward.
+ */
+template <typename I>
+concept bidirectional_iterator =
+    forward_iterator<I> and
+    std::derived_from<
+        __detail::__iter_concept<I>,
+        bidirectional_iterator_tag
+    > and
+    requires (I i) {
+        { --i } -> std::same_as<I&>;
+        { i-- } -> std::same_as<I>;
+    };
+
+/**
+ * The concept @c random_access_Iterator refines @c bidirectional_iterator by
+ * adding support for constant time advancement with the +=, +, -=, and -
+ * operators, constant time computation of distance with -, and array notation
+ * with subscripting.
+ */
+template <typename I>
+concept random_access_iterator =
+    bidirectional_iterator<I> and
+    std::derived_from<
+        __detail::__iter_concept<I>,
+        random_access_iterator_tag
+    > and
+    std::totally_ordered<I> and
+    sized_sentinel_for<I, I> and
+    requires (I i, I const j, iter_difference_t<I> const n) {
+        { i += n } -> std::same_as<I&>;
+        { j +  n } -> std::same_as<I>;
+        { n +  j } -> std::same_as<I>;
+        { i -= n } -> std::same_as<I&>;
+        { j -  n } -> std::same_as<I>;
+        { j[n]   } -> std::same_as<iter_reference_t<I>>;
+    };
+
+/**
+ * The @c contiguous_iterator_concept refines @c random_access_iterator by
+ * providing a guarantee the denoted elements are stored contiguously in the
+ * memory.
+ */
+template <typename I>
+concept contiguous_iterator =
+    random_access_iterator<I> and
+    std::derived_from<__detail::__iter_concept<I>, contiguous_iterator_tag> and
+    std::is_lvalue_reference_v<iter_reference_t<I>> and
+    std::same_as<
+        iter_value_t<I>,
+        std::remove_cvref_t<iter_reference_t<I>>
+    > and
+    requires (I const& i) {
+        { std::to_address(i) } ->
+            std::same_as<std::add_pointer_t<iter_reference_t<I>>>;
     };
 }  // exfs::iterator
 

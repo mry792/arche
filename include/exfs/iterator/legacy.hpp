@@ -148,7 +148,7 @@ concept legacy_random_access_iterator =
  * This trait is an extension to the standard library.
  *
  * @todo Specialization to take the @c iterator_traits<Iter>::iterator_category
- *     if @c iterator_tratis is specialized for @p Iter.
+ *     if @c iterator_trait is specialized for @p Iter.
  *
  * @tparam Iter Iterator type in question.
  */
@@ -194,18 +194,24 @@ namespace __detail {
 template <typename Iter>
 struct __iter_traits {};
 
+template <typename Iter>
+concept __has_most_iter_trait_members = requires {
+    typename Iter::difference_type;
+    typename Iter::value_type;
+    // typename Iter::pointer;
+    typename Iter::reference;
+    typename Iter::iterator_category;
+};
+
 /**
  * Specialization of @c __iter_traits for when @p Iter defines all expected
  * member types.
  */
 template <typename Iter>
-requires (requires {
-    typename Iter::difference_type;
-    typename Iter::value_type;
-    typename Iter::pointer;
-    typename Iter::reference;
-    typename Iter::iterator_category;
-})
+requires (
+    __has_most_iter_trait_members<Iter> and
+    requires { typename Iter::pointer; }
+)
 struct __iter_traits<Iter> {
     using difference_type   = typename Iter::difference_type;
     using value_type        = typename Iter::value_type;
@@ -220,13 +226,7 @@ struct __iter_traits<Iter> {
  */
 template <typename Iter>
 requires (
-    requires {
-        typename Iter::difference_type;
-        typename Iter::value_type;
-        // typename Iter::pointer;
-        typename Iter::reference;
-        typename Iter::iterator_category;
-    } and
+    __has_most_iter_trait_members<Iter> and
     not requires { typename Iter::pointer; }
 )
 struct __iter_traits<Iter> {
@@ -249,6 +249,7 @@ struct __safe_iter_ptr<Iter> {
 };
 
 template <legacy_input_iterator Iter>
+requires (not __has_most_iter_trait_members<Iter>)
 struct __iter_traits<Iter> {
     using difference_type   = typename incrementable_traits<Iter>::difference_type;
     using value_type        = typename indirectly_readable_traits<Iter>::value_type;
@@ -269,6 +270,7 @@ struct __safe_iter_diff<T> {
 };
 
 template <legacy_iterator Iter>
+requires (not __has_most_iter_trait_members<Iter>)
 struct __iter_traits<Iter> {
     using difference_type   = typename __safe_iter_diff<Iter>::type;
     using value_type        = void;
