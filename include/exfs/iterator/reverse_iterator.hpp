@@ -99,6 +99,39 @@ class reverse_iterator {
           : base_{exfs::move(other.base())} {}
 
     /**
+     * Copy-assigns the underlying iterator from that of @p other.
+     *
+     * @param[in] other The iterator adaptor to assign from.
+     */
+    template <typename Other>
+    requires (
+        not std::is_same_v<Other, Iter> and
+        std::convertible_to<Other const&, Iter> and
+        std::assignable_from<iterator_type&, Other const&>
+    )
+    constexpr reverse_iterator&
+    operator = (reverse_iterator<Other> const& other) {
+        base_ = other.base();
+        return *this;
+    }
+
+    /**
+     * Move-assigns the underlying iterator from that of @p other.
+     *
+     * @param[in] other The iterator adaptor to assign from.
+     */
+    template <typename Other>
+    requires (
+        not std::is_same_v<Other, Iter> and
+        std::convertible_to<Other&&, Iter> and
+        std::assignable_from<iterator_type&, Other&&>
+    )
+    constexpr reverse_iterator& operator = (reverse_iterator<Other>&& other) {
+        base_ = std::move(other.base());
+        return *this;
+    }
+
+    /**
      * Access the underlying base iterator.
      *
      * This should be the same iterator that this was constructed with. That is

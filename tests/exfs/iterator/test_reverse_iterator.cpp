@@ -8,6 +8,7 @@
 #include <catch2/catch.hpp>
 
 #include "exfs/iterator/category_tags.hpp"
+#include "exfs/iterator/operations.hpp"
 
 #include "models.hpp"
 
@@ -208,5 +209,83 @@ TEMPLATE_TEST_CASE (
         list.emplace_back();
 
         do_test(list.begin(), tag_c<decltype(list.cbegin())>);
+    }
+}
+
+TEMPLATE_TEST_CASE (
+    "exfs::iterator::reverse_iterator - assigment",
+    "[unit][std-parity][iterator]",
+    Std_Reverse_Iterator,
+    Exfs_Reverse_Iterator
+) {
+    auto do_copy_move_test = [] (auto rev_iter, auto other_rev_iter) {
+        REQUIRE(rev_iter.base() != other_rev_iter.base());
+
+        WHEN ("copy assign the wrappers") {
+            rev_iter = other_rev_iter;
+
+            THEN ("the `base` property is the same") {
+                CHECK(rev_iter.base() == other_rev_iter.base());
+            }
+        }
+
+        WHEN ("move assign the wrappers") {
+            auto const other_rev_iter_base = other_rev_iter.base();
+            rev_iter = exfs::move(other_rev_iter);
+
+            THEN ("the `base` property is the same as before") {
+                CHECK(rev_iter.base() == other_rev_iter_base);
+            }
+        }
+    };
+
+    auto do_test = [do_copy_move_test] (auto base_iter, auto const_base_iter) {
+        static_assert(not std::is_same_v<
+            decltype(base_iter),
+            decltype(const_base_iter)
+        >);
+        REQUIRE(base_iter == const_base_iter);
+
+        using Reverse_Iterator = typename TestType::type<decltype(base_iter)>;
+        using Const_Reverse_Iterator =
+            typename TestType::type<decltype(const_base_iter)>;
+
+        AND_GIVEN ("reverse iterator wrappers") {
+            do_copy_move_test(
+                Reverse_Iterator{exfs::iterator::next(base_iter)},
+                Reverse_Iterator{base_iter}
+            );
+        }
+
+        AND_GIVEN ("const reverse iterator and reverse iterator wrappers") {
+            do_copy_move_test(
+                Const_Reverse_Iterator{const_base_iter},
+                Reverse_Iterator{exfs::iterator::next(base_iter)}
+            );
+        }
+    };
+
+    using exfs::iterator::models::Value;
+
+    GIVEN ("a raw pointer iterator") {
+        Value value[2];
+        Value* base_iter = &value[0];
+        Value const* const_base_iter = base_iter;
+
+        do_test(base_iter, const_base_iter);
+    }
+
+    GIVEN ("a random-access iterator") {
+        std::vector<Value> vect{3};
+
+        do_test(vect.begin() + 1, vect.cbegin() + 1);
+    }
+
+    GIVEN ("a bidirectional iterator") {
+        std::list<Value> list;
+        list.emplace_back();
+        list.emplace_back();
+
+        do_test(list.begin(), list.cbegin());
     }
 }
