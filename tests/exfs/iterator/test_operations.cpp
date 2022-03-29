@@ -68,14 +68,15 @@ TEMPLATE_TEST_CASE (
             CHECK(*iter == 2);
 
             auto distance = GENERATE_COPY(wrap_generator(input_data));
-            auto const distance_str = std::to_string(distance);
             int const expected_value = *orig_iter + distance;
-            auto const value_str = std::to_string(expected_value);
 
-            WHEN ("the iterator is advanced " + distance_str + " spaces") {
+            WHEN ("the iterator is advanced " << distance << " spaces") {
                 advance(iter, distance);
 
-                THEN ("the iterator points to the " + value_str + " element") {
+                THEN (
+                    "the iterator points to the "
+                    << expected_value << " element"
+                ) {
                     CHECK(*iter == expected_value);
                 }
             }
@@ -116,11 +117,10 @@ TEMPLATE_TEST_CASE (
 
     auto do_test = [&] (auto container, Table data) {
         auto [min_idx, max_idx] = GENERATE_COPY(table<int, int>(data));
-        auto const min_str = std::to_string(min_idx);
-        auto const max_str = std::to_string(max_idx);
 
         AND_GIVEN (
-            "iterators into the " + min_str + " and " + max_str + " elements"
+            "iterators into the " << min_idx
+            << " and " << max_idx << " elements"
         ) {
             using exfs::iterator::advance;
             auto min_iter = container.begin();
@@ -169,14 +169,15 @@ TEMPLATE_TEST_CASE (
             CHECK(*iter == 2);
 
             auto distance = GENERATE_COPY(wrap_generator(input_data));
-            auto const distance_str = std::to_string(distance);
             int const expected_value = *iter + distance;
-            auto const value_str = std::to_string(expected_value);
 
-            WHEN ("the iterator is next'd " + distance_str + " spaces") {
+            WHEN ("the iterator is next'd " << distance << " spaces") {
                 auto result = next(iter, distance);
 
-                THEN ("the iterator points to the " + value_str + " element") {
+                THEN (
+                    "the iterator points to the "
+                    << expected_value << " element"
+                ) {
                     CHECK(*result == expected_value);
                 }
             }
@@ -219,14 +220,15 @@ TEMPLATE_TEST_CASE (
             CHECK(*iter == 2);
 
             auto distance = GENERATE_COPY(wrap_generator(input_data));
-            auto const distance_str = std::to_string(distance);
             int const expected_value = *iter - distance;
-            auto const value_str = std::to_string(expected_value);
 
-            WHEN ("the iterator is prev'd " + distance_str + " spaces") {
+            WHEN ("the iterator is prev'd " << distance << " spaces") {
                 auto result = prev(iter, distance);
 
-                THEN ("the iterator points to the " + value_str + " element") {
+                THEN (
+                    "the iterator points to the "
+                    << expected_value << " element"
+                ) {
                     CHECK(*result == expected_value);
                 }
             }
