@@ -10,7 +10,9 @@
 
 namespace exfs::iterator {
 namespace models {
-struct Value {};
+struct Value {
+    double data = 0.1;
+};
 
 namespace __detail {
 template <typename Concrete>

@@ -6,6 +6,7 @@
 
 #include "exfs/iterator/category_tags.hpp"
 #include "exfs/iterator/concepts.hpp"
+#include "exfs/iterator/operations.hpp"
 #include "exfs/iterator/traits.hpp"
 #include "exfs/utility/functions.hpp"
 
@@ -146,6 +147,55 @@ class reverse_iterator {
      * @return The underlying iterator.
      */
     constexpr iterator_type base () const { return base_; }
+
+    /**
+     * Returns a reference to the "current" element of the reverse iterator.
+     *
+     * The "current" element is the previous element of the base iterator. The
+     * element is mutable if the underlying iterator type provides mutable
+     * access.
+     *
+     * @return A reference to the "current" element.
+     */
+    constexpr reference operator * () const {
+        return *exfs::iterator::prev(base_);
+    }
+
+    /**
+     * Returns a pointer to the "current" element of the reverse iterator.
+     *
+     * The "current" element is the previous element of the base iterator. The
+     * pointer is mutable if the underlying iterator type provides mutable
+     * access.
+     *
+     * @return A pointer to the "current" element.
+     */
+    constexpr pointer operator -> () const
+    requires (
+        std::is_pointer_v<iterator_type> or
+        requires (iterator_type const i) {
+            i.operator->();
+        }
+    ) {
+        if constexpr (std::is_pointer_v<iterator_type>) {
+            return base_ - 1;
+        } else {
+            return exfs::iterator::prev(base_).operator->();
+        }
+    }
+
+    /**
+     * Returns a reference to the element at the specified relative location.
+     *
+     * @param[in] idx Position relative to current location.
+     *
+     * @return A reference to the elemtn at relative location, that is, `base()
+     *     [-n - 1]`.
+     */
+    constexpr reference operator [] (difference_type idx) const
+    requires (random_access_iterator<Iter>) {
+        return base()[-1 - idx];
+    }
 
   private:
     iterator_type base_;

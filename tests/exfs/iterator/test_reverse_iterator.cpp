@@ -2,11 +2,13 @@
 
 #include <iterator>
 #include <list>
+#include <tuple>
 #include <type_traits>
 #include <vector>
 
 #include <catch2/catch.hpp>
 
+#include "exfs/iterator/concepts.hpp"
 #include "exfs/iterator/category_tags.hpp"
 #include "exfs/iterator/operations.hpp"
 
@@ -287,5 +289,69 @@ TEMPLATE_TEST_CASE (
         list.emplace_back();
 
         do_test(list.begin(), list.cbegin());
+    }
+}
+
+TEMPLATE_TEST_CASE (
+    "exfs::iterator::reverse_iterator - access",
+    "[unit][std-parity][iterator]",
+    Std_Reverse_Iterator,
+    Exfs_Reverse_Iterator
+) {
+    using exfs::iterator::models::Value;
+
+    auto do_test = [] (auto container_tag) {
+        using Container = typename decltype(container_tag)::type;
+        Container container = {{-0.3}, {1.4}};
+
+        using Base_Iterator = decltype(std::cend(container));
+        Base_Iterator base_iter{std::cend(container)};
+
+        AND_GIVEN ("a reverse iterator adaptor") {
+            using Reverse_Iterator = typename TestType::type<Base_Iterator>;
+            Reverse_Iterator rev_iter{base_iter};
+
+            WHEN ("dereferenceing the reverse iterator (*)") {
+                Value const& last_elem = *rev_iter;
+
+                THEN ("the value is the expected item from the container") {
+                    CHECK(last_elem.data == 1.4);
+                }
+            }
+
+            WHEN ("dereferenceing the reverse iterator (->)") {
+                double const& data = rev_iter->data;
+
+                THEN ("the value is the expected data from the container") {
+                    CHECK(data == 1.4);
+                }
+            }
+
+            using exfs::iterator::random_access_iterator;
+            if constexpr (random_access_iterator<Base_Iterator>) {
+                auto [idx, expected_value] = GENERATE(table<int, double>(
+                    {{0, 1.4}, {1, -0.3}}));
+
+                WHEN ("accessing the index " << idx << " element") {
+                    Value const& elem = rev_iter[idx];
+
+                    THEN ("the value is " << expected_value) {
+                        CHECK(elem.data == expected_value);
+                    }
+                }
+            }
+        }
+    };
+
+    GIVEN ("a raw pointer iterator") {
+        do_test(tag_c<Value[2]>);
+    }
+
+    GIVEN ("a random-access iterator") {
+        do_test(tag_c<std::vector<Value>>);
+    }
+
+    GIVEN ("a bidirectional iterator") {
+        do_test(tag_c<std::list<Value>>);
     }
 }
