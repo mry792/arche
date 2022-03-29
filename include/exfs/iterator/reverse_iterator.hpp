@@ -197,6 +197,36 @@ class reverse_iterator {
         return base()[-1 - idx];
     }
 
+    /**
+     * Pre-increments the iterator by one.
+     */
+    constexpr reverse_iterator& operator ++ () {
+        --base_;
+        return *this;
+    }
+
+    /**
+     * Pre-decrements the iterator by one.
+     */
+    constexpr reverse_iterator& operator -- () {
+        ++base_;
+        return *this;
+    }
+
+    /**
+     * Post-increments the iterator by one.
+     */
+    constexpr reverse_iterator operator ++ (int) {
+        return reverse_iterator{base_--};
+    }
+
+    /**
+     * Post-decrements the iterator by one.
+     */
+    constexpr reverse_iterator operator -- (int) {
+        return reverse_iterator{base_++};
+    }
+
   private:
     iterator_type base_;
 };

@@ -355,3 +355,87 @@ TEMPLATE_TEST_CASE (
         do_test(tag_c<std::list<Value>>);
     }
 }
+
+TEMPLATE_TEST_CASE (
+    "exfs::iterator::reverse_iterator - modifiers",
+    "[unit][std-parity][iterator]",
+    Std_Reverse_Iterator,
+    Exfs_Reverse_Iterator
+) {
+    using exfs::iterator::models::Value;
+
+    auto do_test = [] (auto container_tag) {
+        using Container = typename decltype(container_tag)::type;
+        Container container = {{-0.3}, {1.7}};
+
+        AND_GIVEN ("a reverse iterator adaptor pointing to the end") {
+            using Base_Iterator = decltype(std::cbegin(container));
+            Base_Iterator base_last =
+                exfs::iterator::next(std::cbegin(container));
+            Base_Iterator base_end = std::cend(container);
+
+            using Reverse_Iterator = typename TestType::type<Base_Iterator>;
+            Reverse_Iterator rev_iter{base_end};
+
+            WHEN ("pre-incrementing") {
+                auto pre_inc_result = ++rev_iter;
+
+                THEN ("the iterator points to the beginning") {
+                    CHECK(rev_iter.base() == base_last);
+                }
+
+                THEN ("the result points to the beginning") {
+                    CHECK(pre_inc_result.base() == base_last);
+                }
+
+                AND_WHEN ("pre-decrementing") {
+                    auto pre_dec_result = --rev_iter;
+
+                    THEN ("the iterator points to the end") {
+                        CHECK(rev_iter.base() == base_end);
+                    }
+
+                    THEN ("the result points to the end") {
+                        CHECK(pre_dec_result.base() == base_end);
+                    }
+                }
+            }
+
+            WHEN ("post-incrementing") {
+                auto post_inc_result = rev_iter++;
+
+                THEN ("the iterator points to the beginning") {
+                    CHECK(rev_iter.base() == base_last);
+                }
+
+                THEN ("the result still points to the end") {
+                    CHECK(post_inc_result.base() == base_end);
+                }
+
+                AND_WHEN ("post-decrementing") {
+                    auto post_dec_result = rev_iter--;
+
+                    THEN ("the iterator points to the end") {
+                        CHECK(rev_iter.base() == base_end);
+                    }
+
+                    THEN ("the result still points to the beginning") {
+                        CHECK(post_dec_result.base() == base_last);
+                    }
+                }
+            }
+        }
+    };
+
+    GIVEN ("a raw array") {
+        do_test(tag_c<Value[2]>);
+    }
+
+    GIVEN ("a random-access container (std::vector)") {
+        do_test(tag_c<std::vector<Value>>);
+    }
+
+    GIVEN ("a bidirectional container (std::list)") {
+        do_test(tag_c<std::list<Value>>);
+    }
+}
