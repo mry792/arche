@@ -227,6 +227,72 @@ class reverse_iterator {
         return reverse_iterator{base_++};
     }
 
+    /**
+     * Increments the iterator by the given distance.
+     *
+     * The base iterator @p Iter must be a random access iterator.
+     *
+     * @param[in] rev The reverse iterator to advance.
+     * @param[in] dist The amount to advance it by.
+     *
+     * @return The new iterator after advancing.
+     */
+    friend constexpr reverse_iterator operator + (
+        reverse_iterator const& rev,
+        difference_type dist
+    ) requires (random_access_iterator<Iter>) {
+        return reverse_iterator{rev.base() - dist};
+    }
+
+    /**
+     * Increments the iterator by the given distance.
+     *
+     * The base iterator @p Iter must be a random access iterator.
+     *
+     * @param[in] dist The amount to advance it by.
+     * @param[in] rev The reverse iterator to advance.
+     *
+     * @return The new iterator after advancing.
+     */
+    friend constexpr reverse_iterator operator + (
+        difference_type dist,
+        reverse_iterator const& rev
+    ) requires (random_access_iterator<Iter>) {
+        return reverse_iterator{rev.base() - dist};
+    }
+
+    /**
+     * Decrements the iterator by the given distance.
+     *
+     * The base iterator @p Iter must be a random access iterator.
+     *
+     * @param[in] rev The reverse iterator to recede.
+     * @param[in] dist The amount to recede it by.
+     *
+     * @return The new iterator after receding.
+     */
+    friend constexpr reverse_iterator operator - (
+        reverse_iterator const& rev,
+        difference_type dist
+    ) requires (random_access_iterator<Iter>) {
+        return reverse_iterator{rev.base() + dist};
+    }
+
+    /**
+     * Computes the distance between the two iterator adaptors.
+     *
+     * @param[in] lhs
+     * @param[in] rhs
+     *
+     * @return The computed distance.
+     */
+    friend constexpr difference_type operator - (
+        reverse_iterator const& lhs,
+        reverse_iterator const& rhs
+    ) requires (random_access_iterator<Iter>) {
+        return rhs.base() - lhs.base();
+    }
+
   private:
     iterator_type base_;
 };

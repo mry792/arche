@@ -439,3 +439,89 @@ TEMPLATE_TEST_CASE (
         do_test(tag_c<std::list<Value>>);
     }
 }
+
+TEMPLATE_TEST_CASE (
+    "exfs::iterator::reverse_iterator - arithmetic",
+    "[unit][std-parity][iterator]",
+    Std_Reverse_Iterator,
+    Exfs_Reverse_Iterator
+) {
+    using exfs::iterator::models::Value;
+
+    auto do_test = [] (auto container_tag) {
+        using Container = typename decltype(container_tag)::type;
+        Container container = {{-0.3}, {1.7}, {0.6}, {9.8}};
+
+        AND_GIVEN ("a reverse iterator adaptor") {
+            using Base_Iterator = decltype(std::cbegin(container));
+            using Reverse_Iterator = typename TestType::type<Base_Iterator>;
+
+            Reverse_Iterator const rev_iter{std::cbegin(container) + 2};
+
+            AND_GIVEN ("a distance") {
+                using difference_type = typename Reverse_Iterator::difference_type;
+                difference_type const dist = GENERATE(range(-2, 2));
+                INFO("distance = " << dist);
+
+                WHEN ("operator + (rev_iter, dist)") {
+                    auto result = rev_iter + dist;
+
+                    THEN ("the result is `rev_iter.base() - dist`") {
+                        CHECK(result.base() == rev_iter.base() - dist);
+                    }
+                }
+
+                WHEN ("operator + (dist, rev_iter)") {
+                    auto result = dist + rev_iter;
+
+                    THEN ("the result is `rev_iter.base() - dist`") {
+                        CHECK(result.base() == rev_iter.base() - dist);
+                    }
+                }
+
+                WHEN ("operator - (rev_iter, dist)") {
+                    auto result = rev_iter - dist;
+
+                    THEN ("the result is `rev_iter.base() + dist`") {
+                        CHECK(result.base() == rev_iter.base() + dist);
+                    }
+                }
+            }
+
+            AND_GIVEN ("another reverse iterator before `rev_iter`") {
+                Reverse_Iterator const other_rev_iter{std::cbegin(container) + 3};
+
+                WHEN ("operator - (rev_iter, other_rev_iter)") {
+                    auto result = rev_iter - other_rev_iter;
+
+                    THEN ("the result is `other_rev_iter.base() - rev_iter.base()`") {
+                        CHECK(result == 1);
+                    }
+                }
+            }
+
+            AND_GIVEN ("another reverse iterator after `rev_iter`") {
+                Reverse_Iterator const other_rev_iter{std::cbegin(container)};
+
+                WHEN ("operator - (rev_iter, other_rev_iter)") {
+                    auto result = rev_iter - other_rev_iter;
+
+                    THEN ("the result is `other_rev_iter.base() - rev_iter.base()`") {
+                        CHECK(result == -2);
+                    }
+                }
+            }
+        }
+    };
+
+    GIVEN ("a raw array") {
+        do_test(tag_c<Value[4]>);
+    }
+
+    GIVEN ("a random-access container (std::vector)") {
+        do_test(tag_c<std::vector<Value>>);
+    }
+
+    // Arithmetic operations all require random access iterators. This test case
+    // doesn't include tests with bidirectional iterators.
+}
