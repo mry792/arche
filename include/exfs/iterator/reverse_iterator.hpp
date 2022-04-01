@@ -1,6 +1,7 @@
 #ifndef EXFS_ITERATOR_REVERSE_ITERATOR_HPP_
 #define EXFS_ITERATOR_REVERSE_ITERATOR_HPP_
 
+#include <compare>
 #include <concepts>
 #include <type_traits>
 
@@ -130,6 +131,35 @@ class reverse_iterator {
     constexpr reverse_iterator& operator = (reverse_iterator<Other>&& other) {
         base_ = std::move(other.base());
         return *this;
+    }
+
+    /**
+     * This wrapper type supports default equality comparison.
+     *
+     * Compare the underlying iterators for equality. This also allows the
+     * compiler to generate an implementation for `operator !=`.
+     */
+    friend constexpr bool operator == (
+        reverse_iterator const& lhs,
+        reverse_iterator const& rhs
+    ) {
+        return lhs.base() == rhs.base();
+    }
+
+    /**
+     * Spaceship operator applies the inverse comparison in order to take into
+     * account that the iterator order is reversed.
+     *
+     * @param[in] lhs
+     * @param[in] rhs
+     *
+     * @return Effectively `rhs.base() <=> lhs.base()`.
+     */
+    friend constexpr auto operator <=> (
+        reverse_iterator const& lhs,
+        reverse_iterator const& rhs
+    ) {
+        return std::compare_three_way{}(rhs.base(), lhs.base());
     }
 
     /**
@@ -296,6 +326,18 @@ class reverse_iterator {
   private:
     iterator_type base_;
 };
+
+/**
+ * This partial specialization of @c sized_sentinel_for prevents specializations
+ * of @c reverse_iterator from satisfying @c sized_sentinel_for if their
+ * underlying iterators do not satisfy the concept.
+ */
+template <typename Iter_1, typename Iter_2>
+requires (not sized_sentinel_for<Iter_1, Iter_2>)
+inline constexpr bool disable_sized_sentinel_for<
+    reverse_iterator<Iter_1>,
+    reverse_iterator<Iter_2>
+> = true;
 }  // exfs::iterator
 
 #endif  // EXFS_ITERATOR_REVERSE_ITERATOR_HPP_

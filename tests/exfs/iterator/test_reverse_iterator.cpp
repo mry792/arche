@@ -1,5 +1,6 @@
 #include "exfs/iterator/reverse_iterator.hpp"
 
+#include <array>
 #include <iterator>
 #include <list>
 #include <tuple>
@@ -289,6 +290,63 @@ TEMPLATE_TEST_CASE (
         list.emplace_back();
 
         do_test(list.begin(), list.cbegin());
+    }
+}
+
+TEMPLATE_TEST_CASE (
+    "exfs::iterator::reverse_iterator - comparison",
+    "[unit][std-parity][iterator]",
+    Std_Reverse_Iterator,
+    Exfs_Reverse_Iterator
+) {
+    using exfs::iterator::models::Value;
+
+    auto do_test = [] (auto container) {
+        using Base_Iterator = decltype(std::cend(container));
+        using Reverse_Iterator = typename TestType::type<Base_Iterator>;
+
+        Reverse_Iterator const begin_iter{std::cend(container)};
+        Reverse_Iterator const next_iter{
+            exfs::iterator::prev(std::cend(container))
+        };
+
+        CHECK      (begin_iter == begin_iter);
+        CHECK_FALSE(begin_iter == next_iter);
+        CHECK_FALSE(next_iter  == begin_iter);
+
+        CHECK_FALSE(begin_iter != begin_iter);
+        CHECK      (begin_iter != next_iter);
+        CHECK      (next_iter  != begin_iter);
+
+        if constexpr (exfs::iterator::random_access_iterator<Base_Iterator>) {
+            CHECK_FALSE(begin_iter < begin_iter);
+            CHECK      (begin_iter < next_iter);
+            CHECK_FALSE(next_iter  < begin_iter);
+
+            CHECK      (begin_iter <= begin_iter);
+            CHECK      (begin_iter <= next_iter);
+            CHECK_FALSE(next_iter  <= begin_iter);
+
+            CHECK_FALSE(begin_iter > begin_iter);
+            CHECK_FALSE(begin_iter > next_iter);
+            CHECK      (next_iter  > begin_iter);
+
+            CHECK      (begin_iter >= begin_iter);
+            CHECK_FALSE(begin_iter >= next_iter);
+            CHECK      (next_iter  >= begin_iter);
+        }
+    };
+
+    SECTION ("a raw pointer container") {
+        do_test(std::array<Value, 3u>{{{82.4}, {-100.3}, {3.77}}});
+    }
+
+    SECTION ("a random-access container") {
+        do_test(std::vector<Value>{{82.4}, {-100.3}, {3.77}});
+    }
+
+    SECTION ("a bidirectional container") {
+        do_test(std::list<Value>{{82.4}, {-100.3}, {3.77}});
     }
 }
 
