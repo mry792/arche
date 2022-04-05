@@ -28,6 +28,32 @@ template <typename T>
 class storage {
   public:
     /**
+     * Access the stored object.
+     * @warning It is undefined behavior if an object has not yet been
+     *     constructed in this @c storage.
+     * @return A reference to the object.
+     */
+    constexpr T& object () & noexcept {
+        return *std::launder(reinterpret_cast<T*>(this));
+    }
+
+    /**
+     * @overload storage::object()
+     * @return A const reference to the object.
+     */
+    constexpr T const& object () const& noexcept {
+        return *std::launder(reinterpret_cast<T const*>(this));
+    }
+
+    /**
+     * @overload storage::object()
+     * @return An rvalue reference to the object.
+     */
+    constexpr T&& object () && noexcept {
+        return exfs::move(*std::launder(reinterpret_cast<T*>(this)));
+    }
+
+    /**
      * Creates a @p T object initialized with @p args... in the storage.
      *
      * When @c construct is called in the evaluation of some constant
@@ -55,7 +81,7 @@ class storage {
      *     object constructed in the storage.
      */
     constexpr void destroy () noexcept {
-        std::launder(reinterpret_cast<T*>(this))->~T();
+        object().~T();
     }
 
   private:
