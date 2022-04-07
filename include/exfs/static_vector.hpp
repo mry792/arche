@@ -59,7 +59,23 @@ class static_vector {
      */
     constexpr static_vector () noexcept = default;
 
-    // constexpr explicit static_vector(size_type n);
+    /**
+     * Constructs the container with @p count default-inserted instances of @p
+     * T. No copies are made.
+     *
+     * @warning It is undefined behavior if @p count is more than the static
+     *     capacity of the container.
+     *
+     * @param[in] count The number of elements to construct in the initial
+     *     container.
+     */
+    constexpr explicit static_vector (size_type count)
+    noexcept(std::is_nothrow_default_constructible_v<T>) : size_{count} {
+        for (size_type idx = 0u; idx < size_; ++idx) {
+            storage_[idx].construct();
+        }
+    }
+
     // constexpr static_vector(size_type n, const value_type& value);
     // template <class InputIterator>
     // constexpr static_vector(InputIterator first, InputIterator last);
@@ -78,7 +94,16 @@ class static_vector {
      * @{
      */
 
-    // ~static_vector();
+    /**
+     * Destructs the @c static_vector. The destructors of the elements are
+     * called. Note, that if the elements are pointers, the pointed-to objects
+     * are not destroyed.
+     */
+    constexpr ~static_vector () {
+        for (size_type idx = 0u; idx < size_; ++idx) {
+            storage_[idx].destroy();
+        }
+    }
 
     /**
      * @}

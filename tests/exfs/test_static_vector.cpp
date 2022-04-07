@@ -58,5 +58,18 @@ SCENARIO (
         }
     }
 
+    WHEN ("constructing a container with 3 initial objects") {
+        REQUIRE_OBJECT_LIFETIME(default, 0, 0);
+        REQUIRE_OBJECT_LIFETIME(default, 1, 1);
+        REQUIRE_OBJECT_LIFETIME(default, 2, 2);
+
+        Container container{3u};
+
+        THEN ("the container has 3 objects") {
+            CHECK(not container.empty());
+            CHECK(container.size() == 3u);
+        }
+    }
+
     #undef REQUIRE_OBJECT_LIFETIME
 }
