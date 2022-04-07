@@ -71,5 +71,22 @@ SCENARIO (
         }
     }
 
+    GIVEN ("an initial element") {
+        REQUIRE_OBJECT_LIFETIME(default, 0, 0);
+        Regular_Object obj{};
+
+        WHEN ("constructing a container with 2 object copies") {
+            REQUIRE_OBJECT_LIFETIME(copy, 1, 0);
+            REQUIRE_OBJECT_LIFETIME(copy, 2, 0);
+
+            Container container{2u, obj};
+
+            THEN ("the container has 2 objects") {
+                CHECK(not container.empty());
+                CHECK(container.size() == 2u);
+            }
+        }
+    }
+
     #undef REQUIRE_OBJECT_LIFETIME
 }

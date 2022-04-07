@@ -76,7 +76,24 @@ class static_vector {
         }
     }
 
-    // constexpr static_vector(size_type n, const value_type& value);
+    /**
+     * Constructs the container with @p count copies of elements with value @p
+     * value.
+     *
+     * @warning It is undefined behavior if @p count is more than the static
+     *     capacity of the container.
+     *
+     * @param[in] count The number of elements to construct in the initial
+     *     container.
+     * @param[in] value The value with which to initialize the elements.
+     */
+    constexpr static_vector (size_type count, const value_type& value)
+    noexcept(std::is_nothrow_constructible_v<T, T const&>) : size_{count} {
+        for (size_type idx = 0u; idx < size_; ++idx) {
+            storage_[idx].construct(value);
+        }
+    }
+
     // template <class InputIterator>
     // constexpr static_vector(InputIterator first, InputIterator last);
     // constexpr static_vector(const static_vector& other)
