@@ -54,7 +54,11 @@ class static_vector {
      * @{
      */
 
-    // constexpr static_vector() noexcept;
+    /**
+     * Default constructor. Constructs an empty container.
+     */
+    constexpr static_vector () noexcept = default;
+
     // constexpr explicit static_vector(size_type n);
     // constexpr static_vector(size_type n, const value_type& value);
     // template <class InputIterator>
@@ -125,8 +129,22 @@ class static_vector {
      * @{
      */
 
-    // constexpr bool empty() const noexcept;
-    // constexpr size_type size() const noexcept;
+    /**
+     * Checks if the container has no elements, i.e. whether `begin() == end()`.
+     * @return @c true if the container is empty, @c false otherwise.
+     */
+    [[nodiscard]] constexpr bool empty () const noexcept {
+        return size_ == 0u;
+    }
+
+    /**
+     * Returns the number of elements in the container.
+     * @return The number of elements in the container.
+     */
+    [[nodiscard]] constexpr size_type size () const noexcept {
+        return size_;
+    }
+
     // static constexpr size_type max_size() noexcept;
     // static constexpr size_type capacity() noexcept;
     // constexpr void resize(size_type sz);
