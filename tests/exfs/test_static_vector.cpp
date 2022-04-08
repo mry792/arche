@@ -1,5 +1,6 @@
 #include "exfs/static_vector.hpp"
 
+#include <array>
 #include <cstddef>
 #include <iostream>
 #include <sstream>
@@ -84,6 +85,24 @@ SCENARIO (
             THEN ("the container has 2 objects") {
                 CHECK(not container.empty());
                 CHECK(container.size() == 2u);
+            }
+        }
+    }
+
+    GIVEN ("an initial range") {
+        REQUIRE_OBJECT_LIFETIME(default, 0, 0);
+        REQUIRE_OBJECT_LIFETIME(default, 1, 1);
+        std::array<Regular_Object, 2u> src{};
+
+        WHEN ("constructing a container from the source range") {
+            REQUIRE_OBJECT_LIFETIME(copy, 2, 0);
+            REQUIRE_OBJECT_LIFETIME(copy, 3, 1);
+
+            Container container{src.begin(), src.end()};
+
+            THEN ("the container has the same number of objects") {
+                CHECK(not container.empty());
+                CHECK(container.size() == src.size());
             }
         }
     }

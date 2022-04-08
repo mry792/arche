@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <type_traits>
 
+#include "exfs/iterator/concepts.hpp"
 #include "exfs/iterator/reverse_iterator.hpp"
 #include "exfs/memory/storage.hpp"
 
@@ -94,8 +95,27 @@ class static_vector {
         }
     }
 
-    // template <class InputIterator>
-    // constexpr static_vector(InputIterator first, InputIterator last);
+    /**
+     * Constructs the container with the contents of the range
+     * [first, sentinel).
+     *
+     * @warning It is undefined behavior if `distance(first, sentinel)` is
+     *     greater than the static capacity of the container.
+     *
+     * @param[in] first The first item in the range to copy.
+     * @param[in] sentinel The sentinel value of the range.
+     */
+    template <
+        exfs::iterator::input_iterator Iterator,
+        exfs::iterator::sentinel_for<Iterator> Sentinel
+    >
+    constexpr static_vector (Iterator first, Sentinel sentinel)
+    noexcept(std::is_nothrow_constructible_v<T, decltype(*first)>) {
+        for (size_ = 0u; first != sentinel; ++size_, ++first) {
+            storage_[size_].construct(*first);
+        }
+    }
+
     // constexpr static_vector(const static_vector& other)
     //     noexcept(is_nothrow_copy_constructible_v<value_type>);
     // constexpr static_vector(static_vector&& other)
