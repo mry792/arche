@@ -2,6 +2,7 @@
 #define EXFS_STATIC_VECTOR_HPP_
 
 #include <cstddef>
+#include <initializer_list>
 #include <type_traits>
 
 #include "exfs/iterator/concepts.hpp"
@@ -147,7 +148,22 @@ class static_vector {
         other.size_ = 0u;
     }
 
-    // constexpr static_vector(initializer_list<value_type> il);
+    /**
+     * Constructs the container with the contents of the initializer list @p
+     * init.
+     *
+     * @param[in] init The initializer list to copy from.
+     */
+    constexpr static_vector (std::initializer_list<value_type> init)
+          : size_{init.size()} {
+        auto iter = init.begin();
+        auto const end = init.end();
+
+        size_type idx = 0u;
+        while (iter != end) {
+            storage_[idx++].construct(*iter++);
+        }
+    }
 
     /**
      * @}

@@ -168,5 +168,19 @@ SCENARIO (
         }
     }
 
+    WHEN ("construcing a container from an initializer list with 2 elements") {
+        REQUIRE_OBJECT_LIFETIME(default, 0, 0);
+        REQUIRE_OBJECT_LIFETIME(default, 1, 1);
+        REQUIRE_OBJECT_LIFETIME(copy, 2, 0);
+        REQUIRE_OBJECT_LIFETIME(copy, 3, 1);
+
+        Container container{{Regular_Object{}, Regular_Object{}}};
+
+        THEN ("the container has two elements") {
+            CHECK(not container.empty());
+            CHECK(container.size() == 2u);
+        }
+    }
+
     #undef REQUIRE_OBJECT_LIFETIME
 }
