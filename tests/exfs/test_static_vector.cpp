@@ -107,5 +107,25 @@ SCENARIO (
         }
     }
 
+    GIVEN ("a container of 3 initial objects") {
+        REQUIRE_OBJECT_LIFETIME(default, 0, 0);
+        REQUIRE_OBJECT_LIFETIME(default, 1, 1);
+        REQUIRE_OBJECT_LIFETIME(default, 2, 2);
+        Container src{3u};
+
+        WHEN ("constructing a container as a copy") {
+            REQUIRE_OBJECT_LIFETIME(copy, 3, 0);
+            REQUIRE_OBJECT_LIFETIME(copy, 4, 1);
+            REQUIRE_OBJECT_LIFETIME(copy, 5, 2);
+
+            Container container{src};
+
+            THEN ("the container has the same number of objects") {
+                CHECK(not container.empty());
+                CHECK(container.size() == src.size());
+            }
+        }
+    }
+
     #undef REQUIRE_OBJECT_LIFETIME
 }

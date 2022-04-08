@@ -116,8 +116,19 @@ class static_vector {
         }
     }
 
-    // constexpr static_vector(const static_vector& other)
-    //     noexcept(is_nothrow_copy_constructible_v<value_type>);
+    /**
+     * Constructs the container with the copy of the contents of @p other.
+     *
+     * @param[in] other The other container to copy from.
+     */
+    constexpr static_vector (static_vector const& other)
+    noexcept(std::is_nothrow_copy_constructible_v<value_type>)
+          : size_{other.size_} {
+        for (size_type idx = 0u; idx < size_; ++idx) {
+            storage_[idx].construct(other.storage_[idx].object());
+        }
+    }
+
     // constexpr static_vector(static_vector&& other)
     //     noexcept(is_nothrow_move_constructible_v<value_type>);
     // constexpr static_vector(initializer_list<value_type> il);
