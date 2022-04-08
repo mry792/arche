@@ -12,6 +12,7 @@
 
 #include "exfs/iterator/reverse_iterator.hpp"
 #include "exfs/testing/Regular_Object.hpp"
+#include "exfs/utility/functions.hpp"
 
 TEMPLATE_TEST_CASE (
     "exfs::static_vector - member aliases",
@@ -108,9 +109,9 @@ SCENARIO (
     }
 
     GIVEN ("a container of 3 initial objects") {
-        REQUIRE_OBJECT_LIFETIME(default, 0, 0);
-        REQUIRE_OBJECT_LIFETIME(default, 1, 1);
-        REQUIRE_OBJECT_LIFETIME(default, 2, 2);
+        REQUIRE_CALL(*mock_obj, default_construct(0, 0));
+        REQUIRE_CALL(*mock_obj, default_construct(1, 1));
+        REQUIRE_CALL(*mock_obj, default_construct(2, 2));
         Container src{3u};
 
         WHEN ("constructing a container as a copy") {
@@ -124,6 +125,46 @@ SCENARIO (
                 CHECK(not container.empty());
                 CHECK(container.size() == src.size());
             }
+        }
+
+        // The elements of the source container aren't destroyed till well after
+        // the copy has been made.
+        REQUIRE_CALL(*mock_obj, destruct(0, 0));
+        REQUIRE_CALL(*mock_obj, destruct(1, 1));
+        REQUIRE_CALL(*mock_obj, destruct(2, 2));
+        src.clear();
+    }
+
+    GIVEN ("a container of 3 initial objects") {
+        REQUIRE_CALL(*mock_obj, default_construct(0, 0));
+        REQUIRE_CALL(*mock_obj, default_construct(1, 1));
+        REQUIRE_CALL(*mock_obj, default_construct(2, 2));
+        Container src{3u};
+
+        WHEN ("constructing a container by move") {
+            REQUIRE_CALL(*mock_obj, move_construct(3, 0));
+            REQUIRE_CALL(*mock_obj, move_construct(4, 1));
+            REQUIRE_CALL(*mock_obj, move_construct(5, 2));
+            REQUIRE_CALL(*mock_obj, destruct(0, 0));
+            REQUIRE_CALL(*mock_obj, destruct(1, 1));
+            REQUIRE_CALL(*mock_obj, destruct(2, 2));
+
+            Container container{exfs::move(src)};
+
+            THEN ("the container has the same number of objects") {
+                CHECK(not container.empty());
+                CHECK(container.size() == 3u);
+            }
+
+            THEN ("the source container is empty") {
+                CHECK(src.empty());
+                CHECK(src.size() == 0u);
+            }
+
+            REQUIRE_CALL(*mock_obj, destruct(3, 0));
+            REQUIRE_CALL(*mock_obj, destruct(4, 1));
+            REQUIRE_CALL(*mock_obj, destruct(5, 2));
+            container.clear();
         }
     }
 

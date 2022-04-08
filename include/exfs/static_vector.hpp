@@ -7,6 +7,7 @@
 #include "exfs/iterator/concepts.hpp"
 #include "exfs/iterator/reverse_iterator.hpp"
 #include "exfs/memory/storage.hpp"
+#include "exfs/utility/functions.hpp"
 
 namespace exfs {
 /**
@@ -129,8 +130,23 @@ class static_vector {
         }
     }
 
-    // constexpr static_vector(static_vector&& other)
-    //     noexcept(is_nothrow_move_constructible_v<value_type>);
+    /**
+     * Constructs the container with the contents of other using move semantics.
+     * After the move, @p other is guaranteed to be @p empty().
+     *
+     * @param[in] other The other container to move from.
+     */
+    constexpr static_vector (static_vector&& other)
+    noexcept(std::is_nothrow_move_constructible_v<value_type>)
+          : size_{other.size_} {
+        for (size_type idx = 0u; idx < size_; ++idx) {
+            storage_[idx].construct(exfs::move(other.storage_[idx]).object());
+            other.storage_[idx].destroy();
+        }
+
+        other.size_ = 0u;
+    }
+
     // constexpr static_vector(initializer_list<value_type> il);
 
     /**
@@ -148,9 +164,7 @@ class static_vector {
      * are not destroyed.
      */
     constexpr ~static_vector () {
-        for (size_type idx = 0u; idx < size_; ++idx) {
-            storage_[idx].destroy();
-        }
+        destroy_all_();
     }
 
     /**
@@ -268,11 +282,26 @@ class static_vector {
     // constexpr iterator erase(const_iterator position);
     // constexpr iterator erase(const_iterator first, const_iterator last);
 
-    // constexpr void clear() noexcept;
+    /**
+     * Erases all elements from the container. After this call, `size()` returns
+     * zero. Invalidates any references, pointers, or iterators referring to
+     * contained elements. Any past-the-end iterators are also invalidated.
+     */
+    constexpr void clear () noexcept {
+        destroy_all_();
+        size_ = 0u;
+    }
 
     /**
      * @}
      */
+
+  private:
+    constexpr void destroy_all_ () noexcept {
+        for (size_type idx = 0u; idx < size_; ++idx) {
+            storage_[idx].destroy();
+        }
+    }
 };
 }  // namespace exfs
 
