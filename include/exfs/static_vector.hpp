@@ -262,8 +262,27 @@ class static_vector {
      * @{
      */
 
-    // constexpr reference       operator[](size_type n);
-    // constexpr const_reference operator[](size_type n) const;
+    /**
+     * Returns a reference to the element at specified location. No bounds
+     * checking is performed.
+     *
+     * @warning Accessing a nonexistent element is undefined behavior.
+     *
+     * @param[in] pos The position of the element to return.
+     *
+     * @return Reference to the requested element.
+     */
+    constexpr reference operator [] (size_type pos) {
+        return storage_[pos].object();
+    }
+
+    /**
+     * @overload operator[]()
+     */
+    constexpr const_reference operator [] (size_type pos) const {
+        return storage_[pos].object();
+    }
+
     // constexpr reference       front();
     // constexpr const_reference front() const;
     // constexpr reference       back();

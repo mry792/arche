@@ -184,3 +184,36 @@ SCENARIO (
 
     #undef REQUIRE_OBJECT_LIFETIME
 }
+
+SCENARIO (
+    "exfs::static_vector - accessors",
+    "[unit][static_vector]"
+) {
+    using namespace std::literals::string_literals;
+    using Container = exfs::static_vector<std::string, 4u>;
+
+    GIVEN ("a container of 3 elements") {
+        Container container{{"first"s, "second"s, "third"s}};
+
+        THEN ("the index operator accesses an element") {
+            CHECK(container[1] == "second"s);
+            CHECK(std::is_same_v<decltype(container[1]), std::string&>);
+
+            AND_WHEN ("the element is changed externally") {
+                auto& elem = container[0];
+                elem += "_blah";
+
+                THEN ("that change is reflected in the container") {
+                    CHECK(container[0] == "first_blah"s);
+                }
+            }
+        }
+
+        THEN ("the const index operator accesses an element") {
+            auto const const_container = container;
+
+            CHECK(const_container[2] == "third"s);
+            CHECK(std::is_same_v<decltype(const_container[2]), std::string const&>);
+        }
+    }
+}
