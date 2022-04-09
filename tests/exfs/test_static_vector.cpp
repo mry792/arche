@@ -70,6 +70,10 @@ SCENARIO (
         THEN ("the container has 3 objects") {
             CHECK(not container.empty());
             CHECK(container.size() == 3u);
+
+            CHECK(container[0].id() == 0);
+            CHECK(container[1].id() == 1);
+            CHECK(container[2].id() == 2);
         }
     }
 
@@ -86,6 +90,9 @@ SCENARIO (
             THEN ("the container has 2 objects") {
                 CHECK(not container.empty());
                 CHECK(container.size() == 2u);
+
+                CHECK(container[0].id() == 1);
+                CHECK(container[1].id() == 2);
             }
         }
     }
@@ -104,6 +111,9 @@ SCENARIO (
             THEN ("the container has the same number of objects") {
                 CHECK(not container.empty());
                 CHECK(container.size() == src.size());
+
+                CHECK(container[0].id() == 2);
+                CHECK(container[1].id() == 3);
             }
         }
     }
@@ -124,6 +134,10 @@ SCENARIO (
             THEN ("the container has the same number of objects") {
                 CHECK(not container.empty());
                 CHECK(container.size() == src.size());
+
+                CHECK(container[0].id() == 3);
+                CHECK(container[1].id() == 4);
+                CHECK(container[2].id() == 5);
             }
         }
 
@@ -154,6 +168,10 @@ SCENARIO (
             THEN ("the container has the same number of objects") {
                 CHECK(not container.empty());
                 CHECK(container.size() == 3u);
+
+                CHECK(container[0].id() == 3);
+                CHECK(container[1].id() == 4);
+                CHECK(container[2].id() == 5);
             }
 
             THEN ("the source container is empty") {
@@ -179,6 +197,9 @@ SCENARIO (
         THEN ("the container has two elements") {
             CHECK(not container.empty());
             CHECK(container.size() == 2u);
+
+            CHECK(container[0].id() == 2);
+            CHECK(container[1].id() == 3);
         }
     }
 
