@@ -230,11 +230,34 @@ SCENARIO (
             }
         }
 
-        THEN ("the const index operator accesses an element") {
-            auto const const_container = container;
+        THEN ("the `front` function accesses the first element") {
+            CHECK(container.front() == "first"s);
+            CHECK(std::is_same_v<decltype(container.front()), std::string&>);
 
-            CHECK(const_container[2] == "third"s);
-            CHECK(std::is_same_v<decltype(const_container[2]), std::string const&>);
+            AND_WHEN ("the element is changed externally") {
+                auto& elem = container.front();
+                elem += "_blah";
+
+                THEN ("that change is reflected in the container") {
+                    CHECK(container[0] == "first_blah"s);
+                }
+            }
+        }
+
+        AND_GIVEN ("a const reference to that container") {
+            Container const& ccont = container;
+
+            THEN ("the const index operator accesses an element") {
+                CHECK(ccont[2] == "third"s);
+                CHECK(std::is_same_v<decltype(ccont[2]), std::string const&>);
+            }
+
+            THEN ("the const front function accesses the first element") {
+                CHECK(ccont.front() == "first"s);
+                CHECK(std::is_same_v<decltype(ccont.front()), std::string const&>);
+            }
         }
     }
 }
+
+#undef REQUIRE_OBJECT_LIFETIME

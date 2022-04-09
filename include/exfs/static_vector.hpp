@@ -283,8 +283,24 @@ class static_vector {
         return storage_[pos].object();
     }
 
-    // constexpr reference       front();
-    // constexpr const_reference front() const;
+    /**
+     * Access the first element.
+     *
+     * @warning Calling @c front() on an empty container is undefined.
+     *
+     * @return A reference to the first element in the container.
+     */
+    constexpr reference front () {
+        return this->operator[](0);
+    }
+
+    /**
+     * @overload front()
+     */
+    constexpr const_reference front () const {
+        return this->operator[](0);
+    }
+
     // constexpr reference       back();
     // constexpr const_reference back() const;
     // constexpr       T* data()       noexcept;
