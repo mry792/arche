@@ -244,6 +244,20 @@ SCENARIO (
             }
         }
 
+        THEN ("the `back` function accesses the last element") {
+            CHECK(container.back() == "third"s);
+            CHECK(std::is_same_v<decltype(container.back()), std::string&>);
+
+            AND_WHEN ("the element is changed externally") {
+                auto& elem = container.back();
+                elem += "_blah";
+
+                THEN ("that change is reflected in the container") {
+                    CHECK(container[2] == "third_blah"s);
+                }
+            }
+        }
+
         AND_GIVEN ("a const reference to that container") {
             Container const& ccont = container;
 
@@ -256,6 +270,23 @@ SCENARIO (
                 CHECK(ccont.front() == "first"s);
                 CHECK(std::is_same_v<decltype(ccont.front()), std::string const&>);
             }
+
+            THEN ("the const back function accesses the last element") {
+                CHECK(ccont.back() == "third"s);
+                CHECK(std::is_same_v<decltype(ccont.back()), std::string const&>);
+            }
+        }
+    }
+
+    GIVEN ("a container of 1 element") {
+        Container container{{"sole element"s}};
+        Container const& ccont = container;
+
+        THEN ("`front()` and `back()` refer to the same element") {
+            CHECK(&container.front() == &container.back());
+            CHECK(&container.front() == &ccont.back());
+            CHECK(&ccont.front() == &container.back());
+            CHECK(&ccont.front() == &ccont.back());
         }
     }
 }

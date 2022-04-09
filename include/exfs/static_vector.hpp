@@ -301,8 +301,24 @@ class static_vector {
         return this->operator[](0);
     }
 
-    // constexpr reference       back();
-    // constexpr const_reference back() const;
+    /**
+     * Access the last element.
+     *
+     * @warning Calling @c back() on an empty container is undefined.
+     *
+     * @return A reference to the last element in the container.
+     */
+    constexpr reference back () {
+        return this->operator[](size_ - 1);
+    }
+
+    /**
+     * @overload back()
+     */
+    constexpr const_reference back () const {
+        return this->operator[](size_ - 1);
+    }
+
     // constexpr       T* data()       noexcept;
     // constexpr const T* data() const noexcept;
 
