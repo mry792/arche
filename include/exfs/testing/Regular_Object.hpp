@@ -155,7 +155,8 @@ class Regular_Object {
  * Compare two @c Regular_Object instances for semantic equality.
  * @return @c true if they have the same data, else @c false.
  */
-bool operator == (Regular_Object const& obj_a, Regular_Object const& obj_b) {
+inline bool operator ==
+(Regular_Object const& obj_a, Regular_Object const& obj_b) {
     // return std::compare_three_way{}(obj_a.data(), obj_b.data());
     return obj_a.data() == obj_b.data();
 }
@@ -164,7 +165,8 @@ bool operator == (Regular_Object const& obj_a, Regular_Object const& obj_b) {
  * Compare two @c Regular_Object instances for semantic inequality.
  * @return @c true if they have different data, else @c false.
  */
-bool operator != (Regular_Object const& obj_a, Regular_Object const& obj_b) {
+inline bool operator !=
+(Regular_Object const& obj_a, Regular_Object const& obj_b) {
     return obj_a.data() != obj_b.data();
 }
 
