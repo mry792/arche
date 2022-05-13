@@ -9,10 +9,15 @@
 #include <vector>
 
 #include <catch2/catch.hpp>
+#include <catch2/trompeloeil.hpp>
 
 #include "exfs/iterator/reverse_iterator.hpp"
 #include "exfs/testing/Regular_Object.hpp"
 #include "exfs/utility/functions.hpp"
+
+#define REQUIRE_OBJECT_LIFETIME(ORIGIN, ID, DATA)                              \
+REQUIRE_CALL(*mock_obj, ORIGIN ## _construct(ID, DATA));                       \
+REQUIRE_CALL(*mock_obj, destruct(ID, DATA));
 
 TEMPLATE_TEST_CASE (
     "exfs::static_vector - member aliases",
@@ -46,10 +51,6 @@ SCENARIO (
     auto mock_obj = Regular_Object::initialize();
 
     using Container = exfs::static_vector<Regular_Object, 5u>;
-
-    #define REQUIRE_OBJECT_LIFETIME(ORIGIN, ID, DATA)                          \
-    REQUIRE_CALL(*mock_obj, ORIGIN ## _construct(ID, DATA));                   \
-    REQUIRE_CALL(*mock_obj, destruct(ID, DATA));
 
     WHEN ("default constructing a container") {
         Container container{};
@@ -202,8 +203,79 @@ SCENARIO (
             CHECK(container[1].id() == 3);
         }
     }
+}
 
-    #undef REQUIRE_OBJECT_LIFETIME
+SCENARIO (
+    "exfs::static_vector - assigment",
+    "[unit][static_vector]"
+) {
+    using exfs::testing::Regular_Object;
+    using Container = exfs::static_vector<Regular_Object, 3u>;
+    auto mock_obj = Regular_Object::initialize();
+
+    GIVEN ("a container of 2 elements") {
+        REQUIRE_CALL(*mock_obj, default_construct(0, 0));
+        REQUIRE_CALL(*mock_obj, default_construct(1, 1));
+        Container container{2u};
+
+        AND_GIVEN ("a smaller container (1 element)") {
+            REQUIRE_CALL(*mock_obj, default_construct(2, 2));
+            Container src{1u};
+
+            WHEN ("copy assigning") {
+                REQUIRE_CALL(*mock_obj, copy_assign(0, 0, 2, 2));
+                REQUIRE_CALL(*mock_obj, destruct(1, 1));
+
+                container = src;
+
+                THEN ("the two containers are equal") {
+                    REQUIRE(container.size() == src.size());
+                    for (unsigned idx = 0u; idx < container.size(); ++idx) {
+                        CAPTURE(idx);
+                        CHECK(container[idx].data() == src[idx].data());
+                    }
+                }
+
+                REQUIRE_CALL(*mock_obj, destruct(2, 2));
+                src.clear();
+
+                REQUIRE_CALL(*mock_obj, destruct(0, 2));
+                container.clear();
+            }
+        }
+
+        AND_GIVEN ("a larger container (3 elements)") {
+            REQUIRE_CALL(*mock_obj, default_construct(2, 2));
+            REQUIRE_CALL(*mock_obj, default_construct(3, 3));
+            REQUIRE_CALL(*mock_obj, default_construct(4, 4));
+            Container src{3u};
+
+            WHEN ("copy assigning") {
+                REQUIRE_CALL(*mock_obj, copy_assign(0, 0, 2, 2));
+                REQUIRE_CALL(*mock_obj, copy_assign(1, 1, 3, 3));
+                REQUIRE_CALL(*mock_obj, copy_construct(5, 4));
+                container = src;
+
+                THEN ("the two containers are equal") {
+                    REQUIRE(container.size() == src.size());
+                    for (unsigned idx = 0u; idx < container.size(); ++idx) {
+                        CAPTURE(idx);
+                        CHECK(container[idx].data() == src[idx].data());
+                    }
+                }
+
+                REQUIRE_CALL(*mock_obj, destruct(2, 2));
+                REQUIRE_CALL(*mock_obj, destruct(3, 3));
+                REQUIRE_CALL(*mock_obj, destruct(4, 4));
+                src.clear();
+
+                REQUIRE_CALL(*mock_obj, destruct(0, 2));
+                REQUIRE_CALL(*mock_obj, destruct(1, 3));
+                REQUIRE_CALL(*mock_obj, destruct(5, 4));
+                container.clear();
+            }
+        }
+    }
 }
 
 SCENARIO (

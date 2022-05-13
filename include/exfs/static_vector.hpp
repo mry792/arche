@@ -192,8 +192,41 @@ class static_vector {
      * @{
      */
 
-    // constexpr static_vector& operator=(const static_vector& other)
-    //     noexcept(is_nothrow_copy_assignable_v<value_type>);
+    /**
+     * Copy assignment operator. Replaces the contents with a copy of the
+     * contents of other.
+     * @param[in] other The container object to copy from.
+     * @return A reference to the current container object.
+     */
+    constexpr static_vector& operator = (static_vector const& other)
+    noexcept(
+        std::is_nothrow_copy_assignable_v<value_type> and
+        std::is_nothrow_copy_constructible_v<value_type>
+    ) {
+        // This implementation assumes that copy-assigning T is cheaper than T's
+        // destructor + copy-constructor. The approach here is to iterate over
+        // the two containers in lock-step doing the minimal action required.
+        size_type idx = 0u;
+
+        // First, copy-assign where elements exist in both containers.
+        for (; idx < size_ and idx < other.size_; ++idx) {
+            storage_[idx].object() = other.storage_[idx].object();
+        }
+
+        // Then, copy-construct where other has more elements.
+        for (; idx < other.size_; ++idx) {
+            storage_[idx].construct(other.storage_[idx].object());
+        }
+
+        // Finally, destruct any remaining elements of this container.
+        for (; idx < size_; ++idx) {
+            storage_[idx].destroy();
+        }
+
+        size_ = other.size_;
+        return *this;
+    }
+
     // constexpr static_vector& operator=(static_vector&& other);
     //     noexcept(is_nothrow_move_assignable_v<value_type>);
     // template <class InputIterator>

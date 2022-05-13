@@ -7,6 +7,8 @@
 #include <concepts>
 #include <memory>
 
+#include <catch2/catch.hpp>
+#include <catch2/trompeloeil.hpp>
 #include <trompeloeil.hpp>
 
 namespace exfs::testing {
