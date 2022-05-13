@@ -242,6 +242,26 @@ SCENARIO (
                 REQUIRE_CALL(*mock_obj, destruct(0, 2));
                 container.clear();
             }
+
+            WHEN ("move assigning") {
+                REQUIRE_CALL(*mock_obj, move_assign(0, 0, 2, 2));
+                REQUIRE_CALL(*mock_obj, destruct(1, 1));
+                REQUIRE_CALL(*mock_obj, destruct(2, 2));
+
+                container = exfs::move(src);
+
+                THEN ("the first container has one element") {
+                    REQUIRE(container.size() == 1u);
+                    CHECK(container.front().data() == 2);
+                }
+
+                THEN ("the source container is empty") {
+                    CHECK(src.empty());
+                }
+
+                REQUIRE_CALL(*mock_obj, destruct(0, 2));
+                container.clear();
+            }
         }
 
         AND_GIVEN ("a larger container (3 elements)") {
@@ -268,6 +288,32 @@ SCENARIO (
                 REQUIRE_CALL(*mock_obj, destruct(3, 3));
                 REQUIRE_CALL(*mock_obj, destruct(4, 4));
                 src.clear();
+
+                REQUIRE_CALL(*mock_obj, destruct(0, 2));
+                REQUIRE_CALL(*mock_obj, destruct(1, 3));
+                REQUIRE_CALL(*mock_obj, destruct(5, 4));
+                container.clear();
+            }
+
+            WHEN ("move assigning") {
+                REQUIRE_CALL(*mock_obj, move_assign(0, 0, 2, 2));
+                REQUIRE_CALL(*mock_obj, move_assign(1, 1, 3, 3));
+                REQUIRE_CALL(*mock_obj, move_construct(5, 4));
+                REQUIRE_CALL(*mock_obj, destruct(2, 2));
+                REQUIRE_CALL(*mock_obj, destruct(3, 3));
+                REQUIRE_CALL(*mock_obj, destruct(4, 4));
+                container = exfs::move(src);
+
+                THEN ("the first container has the elements of the second") {
+                    REQUIRE(container.size() == 3u);
+                    CHECK(container[0].data() == 2);
+                    CHECK(container[1].data() == 3);
+                    CHECK(container[2].data() == 4);
+                }
+
+                THEN ("the source container is empty") {
+                    CHECK(src.empty());
+                }
 
                 REQUIRE_CALL(*mock_obj, destruct(0, 2));
                 REQUIRE_CALL(*mock_obj, destruct(1, 3));

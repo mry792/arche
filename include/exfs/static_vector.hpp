@@ -227,8 +227,45 @@ class static_vector {
         return *this;
     }
 
-    // constexpr static_vector& operator=(static_vector&& other);
-    //     noexcept(is_nothrow_move_assignable_v<value_type>);
+    /**
+     * Move assignment operator. Replaces the contents with those of @p other
+     * using element-wise move construction/assignment. After this call, @p
+     * other will be empty.
+     * @param[in] other The container object to move from.
+     * @return A reference to the current container object.
+     */
+    constexpr static_vector& operator = (static_vector&& other)
+    noexcept(
+        std::is_nothrow_move_assignable_v<value_type> and
+        std::is_nothrow_move_constructible_v<value_type>
+    ) {
+        // This implementation assumes that move-assigning T is cheaper than T's
+        // destructor + move-constructor. The approach here is to iterator over
+        // the two containers in lock-step doing the minimal action required.
+        size_type idx = 0u;
+
+        // First, move-assign where elements exist in both containers.
+        for (; idx < size_ and idx < other.size_; ++idx) {
+            storage_[idx].object() = exfs::move(other.storage_[idx]).object();
+        }
+
+        // Then, move-construct where other has more elements.
+        for (; idx < other.size_; ++idx) {
+            storage_[idx].construct(exfs::move(other.storage_[idx]).object());
+        }
+
+        // Next, destruct any remaining elements of this container.
+        for (; idx < size_; ++idx) {
+            storage_[idx].destroy();
+        }
+
+        // Lastly, destruct all elements of `other`.
+        other.destroy_all_();
+
+        size_ = exfs::exchange(other.size_, 0u);
+        return *this;
+    }
+
     // template <class InputIterator>
     // constexpr void assign(InputIterator first, InputIterator last);
     // constexpr void assign(size_type n, const value_type& u);
