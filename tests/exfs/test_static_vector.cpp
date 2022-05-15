@@ -409,4 +409,55 @@ SCENARIO (
     }
 }
 
+SCENARIO (
+    "exfs::static_vector - modifiers",
+    "[unit][static_vector]"
+) {
+    using exfs::testing::Regular_Object;
+    using Container = exfs::static_vector<Regular_Object, 6u>;
+    auto mock_obj = Regular_Object::initialize();
+
+    GIVEN ("an empty container") {
+        Container container{};
+
+        WHEN ("adding an element with lvalue push_back()") {
+            REQUIRE_OBJECT_LIFETIME(default, 0, 0);
+            Regular_Object obj{};
+
+            REQUIRE_CALL(*mock_obj, copy_construct(1, 0));
+            container.push_back(obj);
+
+            THEN ("the container has the right element") {
+                REQUIRE(container.size() == 1u);
+                CHECK(container.front().data() == 0);
+            }
+
+            REQUIRE_CALL(*mock_obj, destruct(1, 0));
+            container.clear();
+        }
+
+        WHEN ("adding an element with rvalue push_back()") {
+            REQUIRE_OBJECT_LIFETIME(default, 0, 0);
+            Regular_Object obj{};
+
+            REQUIRE_CALL(*mock_obj, move_construct(1, 0));
+            container.push_back(exfs::move(obj));
+
+            REQUIRE_OBJECT_LIFETIME(value, 2, 7);
+            REQUIRE_CALL(*mock_obj, move_construct(3, 7));
+            container.push_back(Regular_Object{7});
+
+            THEN ("the container has the right element") {
+                REQUIRE(container.size() == 2u);
+                CHECK(container[0].data() == 0);
+                CHECK(container[1].data() == 7);
+            }
+
+            REQUIRE_CALL(*mock_obj, destruct(1, 0));
+            REQUIRE_CALL(*mock_obj, destruct(3, 7));
+            container.clear();
+        }
+    }
+}
+
 #undef REQUIRE_OBJECT_LIFETIME

@@ -40,6 +40,7 @@ class Regular_Object {
         MAKE_MOCK2(default_construct, void(int, int));
         MAKE_MOCK2(copy_construct, void(int, int));
         MAKE_MOCK2(move_construct, void(int, int));
+        MAKE_MOCK2(value_construct, void(int, int));
         MAKE_MOCK4(copy_assign, void(int, int, int, int));
         MAKE_MOCK4(move_assign, void(int, int, int, int));
         MAKE_MOCK2(destruct, void(int, int));
@@ -93,6 +94,17 @@ class Regular_Object {
         data_{other_obj.data_}
     {
         mock_obj_()->move_construct(id_, data_);
+    }
+
+    /**
+     * Construct a new object using the given value. The new object will have
+     * it's own ID independent of @p data.
+     */
+    explicit Regular_Object (int data) noexcept
+      : id_{next_id_++},
+        data_{data}
+    {
+        mock_obj_()->value_construct(id_, data_);
     }
 
     /**

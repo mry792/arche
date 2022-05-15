@@ -1,6 +1,7 @@
 #ifndef EXFS_STATIC_VECTOR_HPP_
 #define EXFS_STATIC_VECTOR_HPP_
 
+#include <concepts>
 #include <cstddef>
 #include <initializer_list>
 #include <type_traits>
@@ -412,8 +413,23 @@ class static_vector {
     // constexpr iterator emplace(const_iterator position, Args&&... args);
     // template <class... Args>
     // constexpr reference emplace_back(Args&&... args);
-    // constexpr void push_back(const value_type& x);
-    // constexpr void push_back(value_type&& x);
+
+    /**
+     * Appends the given element value to the end of the container. The new
+     * element is initialized from the forwarded @p value.
+     *
+     * @warning Calling this function when the container is full is undefined
+     *     behavior.
+     *
+     * @param[in] value The value of the element to append.
+     */
+    template <typename U>
+    requires (std::same_as<std::remove_cvref_t<U>, value_type>)
+    constexpr void push_back (U&& value)
+    noexcept(std::is_nothrow_constructible_v<value_type, U>) {
+        storage_[size_].construct(exfs::forward<U>(value));
+        ++size_;
+    }
 
     // constexpr void pop_back();
     // constexpr iterator erase(const_iterator position);
