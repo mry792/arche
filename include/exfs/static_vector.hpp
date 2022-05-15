@@ -411,8 +411,28 @@ class static_vector {
 
     // template <class... Args>
     // constexpr iterator emplace(const_iterator position, Args&&... args);
-    // template <class... Args>
-    // constexpr reference emplace_back(Args&&... args);
+
+    /**
+     * Appends a new element to the end of the container. The element is
+     * constructed through the value type's constructor that corresponds to the
+     * forwarded arguments.
+     *
+     * @warning Calling this function when the container is full is undefined
+     *     behavior.
+     *
+     * @param[in,out] args... Arguments to forward to the constructor of the
+     *     element.
+     *
+     * @return A reference to inserted element.
+     */
+    template <typename... Args>
+    constexpr reference emplace_back (Args&&... args)
+    noexcept(std::is_nothrow_constructible_v<value_type, Args...>) {
+        auto& elem_storage = storage_[size_];
+        elem_storage.construct(exfs::forward<Args>(args)...);
+        ++size_;
+        return elem_storage.object();
+    }
 
     /**
      * Appends the given element value to the end of the container. The new

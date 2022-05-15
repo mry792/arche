@@ -457,6 +457,38 @@ SCENARIO (
             REQUIRE_CALL(*mock_obj, destruct(3, 7));
             container.clear();
         }
+
+        WHEN ("adding elements with emplace()") {
+            REQUIRE_OBJECT_LIFETIME(default, 0, 0);
+            Regular_Object src_obj{};
+
+            REQUIRE_CALL(*mock_obj, copy_construct(1, 0));
+            Regular_Object& elem_0 = container.emplace_back(src_obj);
+
+            REQUIRE_CALL(*mock_obj, move_construct(2, 0));
+            Regular_Object& elem_1 = container.emplace_back(exfs::move(src_obj));
+
+            REQUIRE_CALL(*mock_obj, value_construct(3, 17));
+            Regular_Object& elem_2 = container.emplace_back(17);
+
+            THEN ("the container has the right elements") {
+                REQUIRE(container.size() == 3u);
+                CHECK(&container[0] == &elem_0);
+                CHECK(&container[1] == &elem_1);
+                CHECK(&container[2] == &elem_2);
+                CHECK(container[0].id() == 1);
+                CHECK(container[1].id() == 2);
+                CHECK(container[2].id() == 3);
+                CHECK(container[0].data() == 0);
+                CHECK(container[1].data() == 0);
+                CHECK(container[2].data() == 17);
+            }
+
+            REQUIRE_CALL(*mock_obj, destruct(1, 0));
+            REQUIRE_CALL(*mock_obj, destruct(2, 0));
+            REQUIRE_CALL(*mock_obj, destruct(3, 17));
+            container.clear();
+        }
     }
 }
 
