@@ -451,7 +451,17 @@ class static_vector {
         ++size_;
     }
 
-    // constexpr void pop_back();
+    /**
+     * Removes the last element of the container.
+     *
+     * @warning Calling this function on an empty container is undefined
+     *     behavior.
+     */
+    constexpr void pop_back () {
+        --size_;
+        storage_[size_].destroy();
+    }
+
     // constexpr iterator erase(const_iterator position);
     // constexpr iterator erase(const_iterator first, const_iterator last);
 

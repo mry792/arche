@@ -490,6 +490,38 @@ SCENARIO (
             container.clear();
         }
     }
+
+    GIVEN ("a container with three elements") {
+        REQUIRE_CALL(*mock_obj, default_construct(0, 0));
+        REQUIRE_CALL(*mock_obj, default_construct(1, 1));
+        REQUIRE_CALL(*mock_obj, default_construct(2, 2));
+        Container container{3u};
+
+        WHEN ("removing an element with pop_back()") {
+            REQUIRE_CALL(*mock_obj, destruct(2, 2));
+            container.pop_back();
+
+            THEN ("the container only has the first two elements remaining") {
+                REQUIRE(container.size() == 2u);
+                CHECK(container[0].id() == 0);
+                CHECK(container[1].id() == 1);
+            }
+
+            AND_WHEN ("removing another element with pop_back()") {
+                REQUIRE_CALL(*mock_obj, destruct(1, 1));
+                container.pop_back();
+
+                THEN ("the container only has the first element remaining") {
+                    REQUIRE(container.size() == 1u);
+                    CHECK(container[0].id() == 0);
+                }
+            }
+
+            using trompeloeil::_;
+            ALLOW_CALL(*mock_obj, destruct(_, _));
+            container.clear();
+        }
+    }
 }
 
 #undef REQUIRE_OBJECT_LIFETIME
