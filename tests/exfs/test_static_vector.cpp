@@ -325,6 +325,41 @@ SCENARIO (
 }
 
 SCENARIO (
+    "exfs::static_vector - size & capacity",
+    "[unit][static_vector]"
+) {
+    GIVEN ("exfs::static_vector<std::string, 11u>") {
+        using Container = exfs::static_vector<std::string, 11u>;
+        Container container{"asdf", "this", "string", "data"};
+
+        THEN ("the max_size is 11") {
+            CHECK(container.max_size() == 11u);
+            CHECK(Container::max_size() == 11u);
+        }
+
+        THEN ("the capacity is 11") {
+            CHECK(container.capacity() == 11u);
+            CHECK(Container::capacity() == 11u);
+        }
+    }
+
+    GIVEN ("exfs::static_vector<int, 5u>") {
+        using Container = exfs::static_vector<int, 5u>;
+        Container container{3u};
+
+        THEN ("the max_size is 5") {
+            CHECK(container.max_size() == 5u);
+            CHECK(Container::max_size() == 5u);
+        }
+
+        THEN ("the capacity is 5") {
+            CHECK(container.capacity() == 5u);
+            CHECK(Container::capacity() == 5u);
+        }
+    }
+}
+
+SCENARIO (
     "exfs::static_vector - accessors",
     "[unit][static_vector]"
 ) {

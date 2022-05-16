@@ -319,8 +319,21 @@ class static_vector {
         return size_;
     }
 
-    // static constexpr size_type max_size() noexcept;
-    // static constexpr size_type capacity() noexcept;
+    /**
+     * This is an alias for @p capacity() added for feature parity with @c
+     * std::vector.
+     */
+    static constexpr size_type max_size () noexcept { return capacity(); }
+
+    /**
+     * Returns the number of elements that the container has currently allocated
+     * space for. This is always equal to the class template parameter @p N
+     * and, unlike @c std::vector, never changes.
+     *
+     * @return Capacity of the currently allocated storage.
+     */
+    static constexpr size_type capacity () noexcept { return N; }
+
     // constexpr void resize(size_type sz);
     // constexpr void resize(size_type sz, const value_type& c);
 
