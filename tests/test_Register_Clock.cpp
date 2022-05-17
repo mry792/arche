@@ -13,7 +13,7 @@ using Mock_Register = arche::testing::Mock_Register;
 using Register_Clock = arche::Register_Clock<Mock_Register, std::uint32_t>;
 }  // namespace
 
-TEST_CASE (
+SCENARIO (
     "arche::Register_Clock - member aliases and constants",
     "[unit][Register_Clock][constants]"
 ) {
@@ -34,7 +34,7 @@ TEST_CASE (
     }
 }
 
-TEST_CASE (
+SCENARIO (
     "arche::Register_Clock - now() static function",
     "[unit][Register_Clock]"
 ) {
@@ -57,7 +57,7 @@ TEST_CASE (
     }
 }
 
-TEST_CASE (
+SCENARIO (
     "arche::Register_Clock - on_register_overflow() static function",
     "[unit][Register_Clock]"
 ) {

@@ -14,7 +14,7 @@ auto& mock_register_value = arche::testing::mock_register_value;
 using Mock_Register = arche::testing::Mock_Register;
 }  // namespace
 
-TEST_CASE (
+SCENARIO (
     "arche::Register - member aliases and constants",
     "[unit][Register][constants]"
 ) {
@@ -35,7 +35,7 @@ TEST_CASE (
     }
 }
 
-TEST_CASE (
+SCENARIO (
     "arche::Register - set() static function",
     "[unit][Register]"
 ) {
@@ -57,7 +57,7 @@ TEST_CASE (
     }
 }
 
-TEST_CASE (
+SCENARIO (
     "arche::Register - set_bits() static function",
     "[unit][Register]"
 ) {
@@ -107,7 +107,7 @@ TEST_CASE (
     }
 }
 
-TEST_CASE (
+SCENARIO (
     "arche::Register - clear_bits() static function",
     "[unit][Register]"
 ) {

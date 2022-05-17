@@ -18,7 +18,7 @@ using Bitset_Types = std::tuple<
     arche::Bitset<32u, std::uint32_t>
 >;
 
-TEST_CASE (
+SCENARIO (
     "arche::Bitset - member aliases and constants",
     "[unit][Bitset][constants]"
 ) {

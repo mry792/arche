@@ -65,7 +65,7 @@ namespace {
 int get_prvalue () { return 0; }
 }
 
-TEST_CASE (
+SCENARIO (
     "exfs::forward",
     "[unit][std-parity][utility]"
 ) {
