@@ -17,18 +17,18 @@ namespace arche {
  * library but shifts more of the work to compile-time. Where possible, naming
  * is kept consistent with @c std::bitset.
  *
- * @tparam V_Bit_Count The number of bits available in the @c Bitset.
+ * @tparam t_bit_count The number of bits available in the @c Bitset.
  * @tparam T_Underlying The underlying value type. Must have at least @p
- *     V_Bit_Count number of bits.
+ *     t_bit_count number of bits.
  */
 template <
-    unsigned int V_Bit_Count,
+    unsigned int t_bit_count,
     std::unsigned_integral T_Underlying
 >
 class Bitset {
     static_assert(
-        V_Bit_Count <= sizeof(T_Underlying) * 8,
-        "T_Underlying must have at least V_Bit_Count bits."
+        t_bit_count <= sizeof(T_Underlying) * 8,
+        "T_Underlying must have at least t_bit_count bits."
     );
 
   public:
@@ -40,7 +40,7 @@ class Bitset {
     /**
      * The number of bits of the underlying type used by this @c Bitset.
      */
-    static constexpr auto bit_count = V_Bit_Count;
+    static constexpr auto bit_count = t_bit_count;
 
     /**
      * Indicates if every bit of the underlying type is used by this @c Bitset.
@@ -55,7 +55,7 @@ class Bitset {
         if constexpr (is_saturated) {
             return ~Underlying{};
         } else {
-            return (Underlying{1} << V_Bit_Count) - 1;
+            return (Underlying{1} << t_bit_count) - 1;
         }
     }
 
@@ -96,7 +96,7 @@ class Bitset {
     template <unsigned bit_index>
     static constexpr Bitset bit () {
         static_assert(
-            bit_index < V_Bit_Count,
+            bit_index < t_bit_count,
             "Bit index must be within the specified size of the bitset."
         );
 

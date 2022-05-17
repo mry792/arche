@@ -9,7 +9,7 @@ namespace arche {
 /**
  * This class wraps a memory-addressed register of an MCU.
  *
- * @tparam V_Address The address of the register as an unsigned integral. This
+ * @tparam t_address The address of the register as an unsigned integral. This
  *     is left as an unconstrained value parameter to facilitate testing where
  *     it can be assigned a reference to a variable serving as a mock MCU
  *     register.
@@ -17,13 +17,13 @@ namespace arche {
  * @tparam T_Underlying The underyling value type. Must be some kind of integral
  *     constant
  *
- * @tparam V_Bit_Count The number of bits of the register that are available for
+ * @tparam t_bit_count The number of bits of the register that are available for
  *     use by the programmer.
  */
 template <
-    auto V_Address,
+    auto t_address,
     std::unsigned_integral T_Underlying,
-    unsigned int V_Bit_Count = sizeof(T_Underlying) * 8
+    unsigned int t_bit_count = sizeof(T_Underlying) * 8
 >
 class Register {
   public:
@@ -35,7 +35,7 @@ class Register {
     /**
      * A @c Bitset type corresponding to the register value type.
      */
-    using Bitset = arche::Bitset<V_Bit_Count, T_Underlying>;
+    using Bitset = arche::Bitset<t_bit_count, T_Underlying>;
 
     /**
      * Set the register to the specified @p value.
@@ -76,7 +76,7 @@ class Register {
      * reference.
      */
     static Underlying volatile& reg_ () {
-        return *reinterpret_cast<Underlying volatile*>(V_Address);
+        return *reinterpret_cast<Underlying volatile*>(t_address);
     }
 };
 }  // namespace arche
