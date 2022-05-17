@@ -109,7 +109,7 @@ TEST_CASE (
     GIVEN ("an input type of an xvalue") {
         int i = 7;
 
-        THEN ("the type is forwarded appropriatey") {
+        THEN ("the type is forwarded appropriately") {
             #define DO_CHECK(FUNC)                                             \
             CHECK_EXPR_TYPE(FUNC<int>(std::move(i)), int&&);                   \
             CHECK_EXPR_TYPE(FUNC<int&>(std::move(i)), int&);                   \
@@ -382,10 +382,10 @@ TEMPLATE_TEST_CASE (
     GIVEN ("a nothrow copy-assignable exchange object") { DO_TEST(true, int const&, true) }
     GIVEN ("a throwing copy-assignable exchange object") { DO_TEST(true, int const&, false) }
 
-    GIVEN ("a nothrow move-assignable exchange object with throing move constructor") { DO_TEST(false, int&&, true) }
-    GIVEN ("a throwing move-assignable exchange object with throing move constructor") { DO_TEST(false, int&&, false) }
-    GIVEN ("a nothrow copy-assignable exchange object with throing move constructor") { DO_TEST(false, int const&, true) }
-    GIVEN ("a throwing copy-assignable exchange object with throing move constructor") { DO_TEST(false, int const&, false) }
+    GIVEN ("a nothrow move-assignable exchange object with throwing move constructor") { DO_TEST(false, int&&, true) }
+    GIVEN ("a throwing move-assignable exchange object with throwing move constructor") { DO_TEST(false, int&&, false) }
+    GIVEN ("a nothrow copy-assignable exchange object with throwing move constructor") { DO_TEST(false, int const&, true) }
+    GIVEN ("a throwing copy-assignable exchange object with throwing move constructor") { DO_TEST(false, int const&, false) }
 
     #undef DO_TEST
 }

@@ -79,7 +79,7 @@ TEST_CASE (
             clock.on_register_overflow();
             clock.on_register_overflow();
 
-            THEN ("the clock's value is that many overflows puls the regsiter value") {
+            THEN ("the clock's value is that many overflows plus the register value") {
                 CHECK(clock.now() == 0b0011'0000'0000'0011'0101u);
             }
         }
