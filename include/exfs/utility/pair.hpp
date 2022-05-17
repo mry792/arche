@@ -7,18 +7,18 @@
 #include "exfs/utility/functions.hpp"
 
 namespace exfs::utility {
-/*!
-    A @c pair is a class template that provides a way to store two heterogeneous
-    objects as a single unit. A pair is a specific case of a @c tuple with two
-    elements.
+/**
+ * A @c pair is a class template that provides a way to store two heterogeneous
+ * objects as a single unit. A pair is a specific case of a @c tuple with two
+ * elements.
  */
 template <typename T1, typename T2>
 struct pair {
     using first_type = T1;
     using second_type = T2;
 
-    /*!
-        Data stored by this @c pair type.
+    /**
+     * Data stored by this @c pair type.
      */
     first_type first{};
     second_type second{};
