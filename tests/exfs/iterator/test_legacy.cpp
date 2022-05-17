@@ -97,7 +97,7 @@ using Contiguous_Const_Iterator = int const*;
 /// legacy concepts
 ///
 
-TEST_CASE(
+TEST_CASE (
     "exfs::iterator::legacy_iterator",
     "[unit][iterator]"
 ) {
@@ -125,7 +125,7 @@ TEST_CASE(
     CHECK(legacy_iterator<Contiguous_Const_Iterator>);
 }
 
-TEST_CASE(
+TEST_CASE (
     "exfs::iterator::legacy_input_iterator",
     "[unit][iterator]"
 ) {
@@ -153,7 +153,7 @@ TEST_CASE(
     CHECK(legacy_input_iterator<Contiguous_Const_Iterator>);
 }
 
-TEST_CASE(
+TEST_CASE (
     "exfs::iterator::legacy_output_iterator",
     "[unit][iterator]"
 ) {
@@ -182,7 +182,7 @@ TEST_CASE(
     CHECK(not legacy_output_iterator<Contiguous_Const_Iterator, int>);
 }
 
-TEST_CASE(
+TEST_CASE (
     "exfs::iterator::legacy_forward_iterator",
     "[unit][iterator]"
 ) {
@@ -214,7 +214,7 @@ TEST_CASE(
     CHECK(legacy_forward_iterator<Contiguous_Const_Iterator>);
 }
 
-TEST_CASE(
+TEST_CASE (
     "exfs::iterator::legacy_bidirectional_iterator",
     "[unit][iterator]"
 ) {
@@ -242,7 +242,7 @@ TEST_CASE(
     CHECK(legacy_bidirectional_iterator<Contiguous_Const_Iterator>);
 }
 
-TEST_CASE(
+TEST_CASE (
     "exfs::iterator::legacy_random_access_iterator",
     "[unit][iterator]"
 ) {
@@ -274,7 +274,7 @@ TEST_CASE(
 /// legacy traits
 ///
 
-TEST_CASE(
+TEST_CASE (
     "exfs::iterator::iterator_category",
     "[unit][std-parity][iterator]"
 ) {
@@ -312,7 +312,7 @@ struct Iter_All_Members {
     struct iterator_category;
 };
 
-TEMPLATE_TEST_CASE(
+TEMPLATE_TEST_CASE (
     "exfs::iterator::iterator_traits - all members",
     "[unit][std-parity][iterator]",
     std::iterator_traits<Iter_All_Members>,
@@ -338,7 +338,7 @@ struct Iter_Four_Members {
     struct iterator_category;
 };
 
-TEMPLATE_TEST_CASE(
+TEMPLATE_TEST_CASE (
     "exfs::iterator::iterator_traits - all members except pointer",
     "[unit][std-parity][iterator]",
     std::iterator_traits<Iter_Four_Members>,
@@ -358,7 +358,7 @@ TEMPLATE_TEST_CASE(
 
 // TODO: Test different iterator categories with iterator_traits.
 
-TEST_CASE(
+TEST_CASE (
     "exfs::iterator::iterator_traits - pointer specialization",
     "[unit][std-parity][iterator]"
 ) {

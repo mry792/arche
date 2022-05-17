@@ -81,7 +81,7 @@ CHECK(std::CONCEPT_NAME<MODEL> == exfs::iterator::CONCEPT_NAME<MODEL>);
 /// concept indirectly_readable
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::indirectly_readable",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
@@ -93,7 +93,7 @@ TEMPLATE_LIST_TEST_CASE(
 /// concept indirectly_writable
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::indirectly_writable",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
@@ -106,7 +106,7 @@ TEMPLATE_LIST_TEST_CASE(
 /// concept weakly_incrementable
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::weakly_incrementable",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
@@ -118,7 +118,7 @@ TEMPLATE_LIST_TEST_CASE(
 /// concept incrementable
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::incrementable",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
@@ -130,7 +130,7 @@ TEMPLATE_LIST_TEST_CASE(
 /// concept input_or_output_iterator
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::input_or_output_iterator",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
@@ -142,7 +142,7 @@ TEMPLATE_LIST_TEST_CASE(
 /// concept sentinel_for
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::sentinel_for",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
@@ -155,7 +155,7 @@ TEMPLATE_LIST_TEST_CASE(
 /// concept sentinel_for
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::sized_sentinel_for",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
@@ -174,7 +174,7 @@ TEMPLATE_LIST_TEST_CASE(
 /// concept input_iterator
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::input_iterator",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
@@ -187,7 +187,7 @@ TEMPLATE_LIST_TEST_CASE(
 /// concept output_iterator
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::output_iterator",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
@@ -200,7 +200,7 @@ TEMPLATE_LIST_TEST_CASE(
 /// concept forward_iterator
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::forward_iterator",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
@@ -213,7 +213,7 @@ TEMPLATE_LIST_TEST_CASE(
 /// concept bidirectional_iterator
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::bidirectional_iterator",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
@@ -226,7 +226,7 @@ TEMPLATE_LIST_TEST_CASE(
 /// concept random_access_iterator
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::random_access_iterator",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
@@ -239,7 +239,7 @@ TEMPLATE_LIST_TEST_CASE(
 /// concept contiguous_iterator
 ///
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::contiguous_iterator",
     "[unit][std-parity][iterator][concept]",
     All_Test_Types
