@@ -12,7 +12,7 @@
 
 TEMPLATE_TEST_CASE (
     "exfs::memory::storage - type properties",
-    "[uni][memory]",
+    "[unit][memory]",
     int,
     std::uint64_t,
     std::string,
