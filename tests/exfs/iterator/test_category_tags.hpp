@@ -5,7 +5,7 @@
 
 #include <catch2/catch.hpp>
 
-TEST_CASE(
+TEST_CASE (
     "exfs::iterator::*_tag",
     "[unit][std-parity][iterator]"
 ) {
@@ -20,11 +20,11 @@ TEST_CASE(
         CHECK(std::is_base_of_v<bidirectional, random_access>); \
         CHECK(std::is_base_of_v<random_access, contiguous>);
 
-    SECTION("std") {
+    SECTION ("std") {
         DO_TEST(std);
     }
 
-    SECTION("exfs") {
+    SECTION ("exfs") {
         DO_TEST(exfs::iterator);
     }
 

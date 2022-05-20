@@ -16,7 +16,7 @@ struct Empty {};
 /// struct incrementable_traits
 ///
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::incrementable_traits - primary template",
     "[unit][std-parity][iterator]",
     (std::incrementable_traits, exfs::iterator::incrementable_traits),
@@ -25,7 +25,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
     CHECK(not requires { typename TestType::difference_type; });
 }
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::incrementable_traits - pointers",
     "[unit][std-parity][iterator]",
     (std::incrementable_traits, exfs::iterator::incrementable_traits),
@@ -36,7 +36,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
 
 struct Member_Type { struct difference_type; };
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::incrementable_traits - with member difference_type",
     "[unit][std-parity][iterator]",
     (std::incrementable_traits, exfs::iterator::incrementable_traits),
@@ -52,7 +52,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
 /// struct indirectly_readable_traits
 ///
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::indirectly_readable_traits - primary template",
     "[unit][std-parity][iterator]",
     (std::indirectly_readable_traits, exfs::iterator::indirectly_readable_traits),
@@ -61,7 +61,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
     CHECK(not requires { typename TestType::value_type; });
 }
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::indirectly_readable_traits - pointers",
     "[unit][std-parity][iterator]",
     (std::indirectly_readable_traits, exfs::iterator::indirectly_readable_traits),
@@ -79,7 +79,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
     CHECK(std::is_same_v<typename TestType::value_type, Empty>);
 }
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::indirectly_readable_traits - arrays",
     "[unit][std-parity][iterator]",
     (std::indirectly_readable_traits, exfs::iterator::indirectly_readable_traits),
@@ -97,7 +97,7 @@ struct Target;
 template <typename Val>
 struct Value_Type_Member { using value_type = Val; };
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::indirectly_readable_traits - value_type member",
     "[unit][std-parity][iterator]",
     (std::indirectly_readable_traits, exfs::iterator::indirectly_readable_traits),
@@ -115,7 +115,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
     CHECK(std::is_same_v<typename TestType::value_type, Target>);
 }
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::indirectly_readable_traits - value_type member non-object",
     "[unit][std-parity][iterator]",
     (std::indirectly_readable_traits, exfs::iterator::indirectly_readable_traits),
@@ -134,7 +134,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
 template <typename Elem>
 struct Element_Type_Member { using element_type = Elem; };
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::indirectly_readable_traits - element_type member",
     "[unit][std-parity][iterator]",
     (std::indirectly_readable_traits, exfs::iterator::indirectly_readable_traits),
@@ -152,7 +152,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
     CHECK(std::is_same_v<typename TestType::value_type, Target>);
 }
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::indirectly_readable_traits - element_type member non-object",
     "[unit][std-parity][iterator]",
     (std::indirectly_readable_traits, exfs::iterator::indirectly_readable_traits),
@@ -174,7 +174,7 @@ struct Value_Element_Members {
     using element_type = Elem;
 };
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::indirectly_readable_traits - value_type and element_type members",
     "[unit][std-parity][iterator]",
     (std::indirectly_readable_traits, exfs::iterator::indirectly_readable_traits),
@@ -216,7 +216,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
     CHECK(std::is_same_v<typename TestType::value_type, Target>);
 }
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::indirectly_readable_traits - value_type and element_type members non-object",
     "[unit][std-parity][iterator]",
     (std::indirectly_readable_traits, exfs::iterator::indirectly_readable_traits),
@@ -238,7 +238,7 @@ TEMPLATE_PRODUCT_TEST_CASE(
     CHECK(not requires { typename TestType::value_type; });
 }
 
-TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE (
     "exfs::iterator::indirectly_readable_traits - value_type and element_type members mismatch",
     "[unit][std-parity][iterator]",
     (std::indirectly_readable_traits, exfs::iterator::indirectly_readable_traits),
@@ -296,7 +296,7 @@ using Alias_Test_Types = std::tuple<
 #define CHECK_ALIAS_PARITY(ALIAS_NAME, MODEL)                                  \
 CHECK((std::is_same_v<std::ALIAS_NAME<MODEL>, exfs::iterator::ALIAS_NAME<MODEL>>));
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::iter_value_t",
     "[unit][std-parity][iterator]",
     Alias_Test_Types
@@ -304,7 +304,7 @@ TEMPLATE_LIST_TEST_CASE(
     CHECK_ALIAS_PARITY(iter_value_t, TestType);
 }
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::iter_reference_t",
     "[unit][std-parity][iterator]",
     Alias_Test_Types
@@ -329,7 +329,7 @@ struct Derefable {
     other_ref& operator * ();
 };
 
-TEST_CASE(
+TEST_CASE (
     "exfs::iterator::iter_reference_t - focus tests",
     "[unit][iterator]"
 ) {
@@ -351,7 +351,7 @@ TEST_CASE(
     >);
 }
 
-TEST_CASE(
+TEST_CASE (
     "exfs::iterator::iter_pointer_t",
     "[unit][iterator]"
 ) {
@@ -392,7 +392,7 @@ TEST_CASE(
     #undef CHECK_ITER_PTR
 }
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::iter_difference_t",
     "[unit][std-parity][iterator]",
     Alias_Test_Types
@@ -400,7 +400,7 @@ TEMPLATE_LIST_TEST_CASE(
     CHECK_ALIAS_PARITY(iter_difference_t, TestType);
 }
 
-TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
     "exfs::iterator::iter_rvalue_reference_t",
     "[unit][std-parity][iterator]",
     Alias_Test_Types
@@ -408,8 +408,8 @@ TEMPLATE_LIST_TEST_CASE(
     CHECK_ALIAS_PARITY(iter_rvalue_reference_t, TestType);
 }
 
-TEMPLATE_LIST_TEST_CASE(
-// TEST_CASE(
+TEMPLATE_LIST_TEST_CASE (
+// TEST_CASE (
     "exfs::iterator::iter_common_reference_t",
     "[unit][std-parity][iterator]",
     Alias_Test_Types
