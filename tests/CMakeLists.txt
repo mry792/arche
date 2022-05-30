@@ -4,7 +4,7 @@ include(Catch)
 
 find_package(trompeloeil REQUIRED)
 
-file(GLOB_RECURSE test_files CONFIGURE_DEPENDS "test_*.cpp")
+file(GLOB_RECURSE test_files CONFIGURE_DEPENDS "*.test.cpp")
 
 add_executable(unit_test
     main.cpp
